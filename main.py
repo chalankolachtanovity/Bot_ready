@@ -10,31 +10,48 @@ ready = 0
 async def on_message(message):
     if (message.author == client.user):
         return
-
-    totalMembers = 5                
+                
     if message.content == '!ready':
+        global ready_list
         global ready
-        ready += 1
-                                                    #1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ ✔️ ✅ 🎮 ✨    
-        if (ready == 1):      
-            await message.channel.send(f'1️⃣ First lachtan is ready ✅✨ ``` {message.author} ```')
-
-        elif (ready == 2):
-            await message.channel.send(f'2️⃣ Second lachtan is ready ✅✨ ``` {message.author} ```')
-
-        elif (ready == 3):
-            await message.channel.send(f'3️⃣ Third lachtan is ready ✅✨ ``` {message.author} ```')
-
-        elif (ready == 4):
-            await message.channel.send(f'4️⃣ Fourth lachtan is ready, last one remains ✅✨ ``` {message.author} ```')
     
-        elif (ready == totalMembers):
-            await message.channel.send(f'5️⃣ |`{message.author}`| Every lachtan is ready, prepare for extreme praying! ⛪ 🎮 ⛪ ')
-            ready -= 5
+        if message.author not in ready_list:
+            ready += 1
+            ready_list.add(message.author)
 
-    if message.content == '!all':
-      await message.channel.send('Enjoy gaming!🎮 And remember!, more prayers, better game!🙏🙏🙏 \n```!ready was restored```')
-      ready = 0
+        
+        
+            totalMembers = 5                                             
+            if (ready == 1):      
+                await message.channel.send(f'1️⃣ First lachtan is ready ✅✨ ``` {message.author} ```')
+                
+    
+
+            elif (ready == 2):
+                await message.channel.send(f'2️⃣ Second lachtan is ready ✅✨ ``` {message.author} ```')
+                
+            
+
+            elif (ready == 3):
+                await message.channel.send(f'3️⃣ Third lachtan is ready ✅✨ ``` {message.author} ```')
+               
+            
+
+            elif (ready == 4):
+                await message.channel.send(f'4️⃣ Fourth lachtan is ready, last one remains ✅✨ ``` {message.author} ```')
+                
+
+
+            elif (ready == totalMembers):
+                await message.channel.send(f'5️⃣ |`{message.author}`| Every lachtan is ready, prepare for extreme praying! ⛪ 🎮 ⛪ ')              
+                ready = 0
+                ready_list.clear()
+
+
+    if message.content == "!unready" and message.author in ready_list: 
+        ready -= 1
+        ready_list.remove(message.author)
+        await message.channel.send(f'Lachtan |{message.author}| is unready')
     
 
 
