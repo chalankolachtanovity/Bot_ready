@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "botready"
+name = "Bot Lachtan"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "Unique bot with Unique functions"
+authors = ["chalankolachtanovity@lachtan.sea"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
