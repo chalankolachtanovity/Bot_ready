@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Bot-Lachtan"
-version = "1.0.0"
+version = "1.0.1"
 description = "Unique bot with Unique functions"
 authors = ["chalankolachtanovity@lachtan.sea"]
 
