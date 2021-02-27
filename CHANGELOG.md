@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2020-02-27
+### Added (beta)
+- This is uncompleted 2.0.0 version
+- Completly changed !ready command
+- You can start your own session by typing '!startsession #game #player number'
+- New checker to delete message in not allowed channels
+- Added checker if player started game after typing !ready
+
 ## [1.0.1] - 2020-01-16
 ### Modified
 - Fixed build caused by invalid project name
@@ -14,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Bot reacts to 'Pochvalen' command with friendly answer
 - Bot reacts to '!russia' with funny images
-- Bot reacts to '!cheater' awesome momets from friends .mp4
+- Bot reacts to '!cheater' awesome moments from friends .mp4
 - Bot send informating message about how many players are ready when message='!ready'
 - Bot prevents from invoting !ready multiple times
 - Command '!unready' will remove player from ready list

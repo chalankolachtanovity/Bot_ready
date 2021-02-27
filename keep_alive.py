@@ -1,10 +1,9 @@
 from flask import Flask, request
 from threading import Thread
-
+import json
 app = Flask('')
 counter = 0
 last_message = 'Zatial nic'
-
 
 @app.route('/', methods = ['GET', 'POST'])
 def home():
@@ -12,13 +11,17 @@ def home():
     html = """
 <html>
   <head>
-    <title>Milosovy hratky CSGO tracker</title>
+    <title>Milosovy hratky CSGO stats</title>
   </head>
   <form action = "https://botready.discordsam.repl.co/submit" method = "post">
-         <p>Enter Name:</p>
-         <p><input type = "text" name = "nm" /></p>
-         <p><input type = "submit" value = "submit" /></p>
+         <h10 style="font-family:verdana;">CSGO stat viewer<h10>
+         <p>Request:</p>
+         <button onclick=>Hide elements</button>
       </form>   
+  <body>
+    <h3>Documentation</h3>
+    <p1>This is sample documentation <br> total_kills</p1>
+  </body>
 </html>
     """
     #return f"Current player count is {counter}!"
