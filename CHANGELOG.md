@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2020-3-1
+### Added
+- Combined website code with Bot Lachtan code
+- Improved code
+- You can combine sessions
+- This is full version of improvments added in [1.1.0] version
+
 ## [1.1.0] - 2020-02-27
 ### Added (beta)
 - This is uncompleted 2.0.0 version
