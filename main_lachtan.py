@@ -27,50 +27,53 @@ client = commands.Bot(intents=intents, command_prefix='!')
 
 PRAYERS = 'Otče náš, ktorý si na nebesiach, posväť sa meno tvoje, príď kráľovstvo tvoje, buď vôľa tvoja ako v nebi, tak i na zemi. Chlieb náš každodenný daj nám dnes a odpusť nám naše viny, ako i my odpúšťame svojim vinníkom, a neuveď nás do pokušenia, ale zbav nás zlého.\nAmen.\n:church::cross::church:'
 
-READY_USERS_LIST = {}
+ready_users_list = {}
 
-SESSION_DICT = {}
+session_dict = {}
 
+MINIMAL_NUMBER = 1
+MAXIMAL_NUMBER = 11
+MAXIMAL_LEN_GAME = 30
 
 @client.command()
 async def startsession(message, game: str, number: int):
     """Create keys, values in dict and sends message according to user preferences"""
-    if number <= 1:
+    if number <= MINIMAL_NUMBER:
         return
-    if number >= 11:
+    if number >= MAXIMAL_NUMBER:
         await message.channel.send(
             'Error: Maximum players in session is **10**!')
         return
-    if len(game) >= 30:
+    if len(game) >= MAXIMAL_LEN_GAME:
         await message.channel.send('Error: Maximum lenght of game is **30**!')
         return
-    if f'{game}_game' in SESSION_DICT:
+    if f'{game}_game' in session_dict:
         return
     all_messages.append(message.message)
-    SESSION_DICT[f'{game}_game'] = game
-    SESSION_DICT[f'{game}_max_players'] = number
-    SESSION_DICT[f'{game}_ready_players'] = 0
-    SESSION_DICT[f'{game}_ready_players'] += 1
+    session_dict[f'{game}_game'] = game
+    session_dict[f'{game}_max_players'] = number
+    session_dict[f'{game}_ready_players'] = 0
+    session_dict[f'{game}_ready_players'] += 1
     await get_message(message, message.author, game)
 
 
 @client.command()
 async def ready(message, session_to):
     """Adds user to choosen session"""
-    if session_to != SESSION_DICT[f'{session_to}_game']:
+    if session_to != session_dict[f'{session_to}_game']:
         return
-    # if message.author.id in ready_list:
-    #   return
+    if message.author.id in ready_list:
+      return
     all_messages.append(message.message)
-    SESSION_DICT[f'{session_to}_ready_players'] += 1
+    session_dict[f'{session_to}_ready_players'] += 1
     await get_message(message, message.author,
-                      SESSION_DICT[f'{session_to}_game'])
+                      session_dict[f'{session_to}_game'])
 
 
 @client.command()
 async def unready(message, session_in_unready):
     """Removes user from the choosen session"""
-    if session_in_unready != SESSION_DICT[f'{session_in_unready}_game']:
+    if session_in_unready != session_dict[f'{session_in_unready}_game']:
         return
     await session_unready(message, session_in_unready, message.author)
 
@@ -93,11 +96,11 @@ async def pochvalen(message):
 
 async def first_session_message(message, first_name: str, started_session: str):
     """Sends starting session message"""
-    READY_USERS_LIST[f"{started_session}_ready_list"] = []
-    READY_USERS_LIST[f"{started_session}_ready_list"].append(first_name.mention)
-    max_players = f"{SESSION_DICT[f'{started_session}_max_players']}"
+    ready_users_list[f"{started_session}_ready_list"] = []
+    ready_users_list[f"{started_session}_ready_list"].append(first_name.mention)
+    max_players = f"{session_dict[f'{started_session}_max_players']}"
     first_session_ms = await message.channel.send(
-        f'|**1. {first_name}** | started session: **{started_session}**\n{max_players} players are able to join'
+        f'1. **| {first_name} |** started session: **{started_session}**\n**{max_players}** players are able to join'
     )
     all_messages.append(first_session_ms)
     ready_list.append(message.author.id)
@@ -105,7 +108,7 @@ async def first_session_message(message, first_name: str, started_session: str):
 
 async def session_ready(message, player_name: str, session):
     """Sends ready information message"""
-    ready_user_message = f"{SESSION_DICT[f'{session}_ready_players']}"
+    ready_user_message = f"{session_dict[f'{session}_ready_players']}"
     rdy_msg = await message.channel.send(
         f"**{ready_user_message}. {player_name}** is ready in **{session}** session"
     )
@@ -117,14 +120,14 @@ async def session_ready(message, player_name: str, session):
 async def ending_of_session(message, ending_name: str, ended_session: str):
     """Sends last ready information message, execute timer to assign fucker and delete all things that was in before session"""
     ready_list.append(message.author.id)
-    full_players = f"{SESSION_DICT[f'{ended_session}_max_players']}"
+    full_players = f"{session_dict[f'{ended_session}_max_players']}"
     await message.channel.send(
-        f'|**{full_players}. {ending_name}** | Everyone is ready in **{ended_session}** session! \nEnjoy gaming!'
+        f'**{full_players}. | {ending_name} |** Everyone is ready in **{ended_session}** session! \nEnjoy gaming!'
     )
-    SESSION_DICT.pop(f'{ended_session}_ready_players')
-    SESSION_DICT.pop(f'{ended_session}_game')
-    SESSION_DICT.pop(f'{ended_session}_max_players')
-    if SESSION_DICT == {}:
+    session_dict.pop(f'{ended_session}_ready_players')
+    session_dict.pop(f'{ended_session}_game')
+    session_dict.pop(f'{ended_session}_max_players')
+    if session_dict == {}:
         for single_message in all_messages:
             await single_message.delete()
     await assing_fucker_role(message)  #5 minutes break
@@ -134,24 +137,26 @@ async def ending_of_session(message, ending_name: str, ended_session: str):
 
 async def get_message(message, player_name, session):
     """Sends message according to ready players"""
-    if SESSION_DICT[f'{session}_ready_players'] == 1:
+    if session_dict[f'{session}_ready_players'] == 1:
         await first_session_message(message, player_name, session)
 
-    if SESSION_DICT[f'{session}_ready_players'] >= 2 and SESSION_DICT[f'{session}_ready_players'] != SESSION_DICT[f'{session}_max_players']:
+    if session_dict[f'{session}_ready_players'] >= 2 and session_dict[f'{session}_ready_players'] != session_dict[f'{session}_max_players']:
         await session_ready(message, player_name, session)
 
-    if SESSION_DICT[f'{session}_ready_players'] == SESSION_DICT[f'{session}_max_players']:
+    if session_dict[f'{session}_ready_players'] == session_dict[f'{session}_max_players']:
         await ending_of_session(message, player_name, session)
 
 
 async def session_unready(message, session_in_unready, player_to_unready):
     if message.author.id not in ready_list:
         return
+    if session_dict[f'{session_in_unready}_ready_players'] == 1:
+      return
     if message.author.id in playing_users:
         playing_users.remove(message.author.id)
-    SESSION_DICT[f'{session_in_unready}_ready_players'] -= 1
+    session_dict[f'{session_in_unready}_ready_players'] -= 1
 
-    players_ready = f"{SESSION_DICT[f'{session_in_unready}_ready_players']}"
+    players_ready = f"{session_dict[f'{session_in_unready}_ready_players']}"
     unready_information_mes = await message.channel.send(
         f'Lachtan **| {message.author} |** is unready\nPlayers ready: {players_ready}'
     )
@@ -163,8 +168,8 @@ async def session_unready(message, session_in_unready, player_to_unready):
 
 async def ready_information(message, session, player_name):
     """Simple function to send ready list after some user being ready"""
-    READY_USERS_LIST[f"{session}_ready_list"].append(player_name.mention)
-    after_ready_list_members = f"{READY_USERS_LIST[f'{session}_ready_list']}"
+    ready_users_list[f"{session}_ready_list"].append(player_name.mention)
+    after_ready_list_members = f"{ready_users_list[f'{session}_ready_list']}"
     ready_list_ms = await message.channel.send(
         f"**{session} ready list:** {after_ready_list_members}"
     )
@@ -173,8 +178,8 @@ async def ready_information(message, session, player_name):
 
 async def unready_information(message, session, player_name):
     """Simple function to send ready list after some user being unready"""
-    READY_USERS_LIST[f"{session}_ready_list"].remove(player_name)
-    after_unready_list_members = f"{READY_USERS_LIST[f'{session}_ready_list']}"
+    ready_users_list[f"{session}_ready_list"].remove(player_name)
+    after_unready_list_members = f"{ready_users_list[f'{session}_ready_list']}"
     ready_list_ms = await message.channel.send(
         f"**{session} ready list:** {after_unready_list_members}"
     )
@@ -191,7 +196,7 @@ async def assing_fucker_role(message):
   add role to ready player but not playing"""
     await timer_assign_fucker(300)
     role = message.guild.get_role(
-        812860101672828938)  #test_mode on, role= 812862836710834207
+        812862836710834207)  #test_mode off, test_role= 812860101672828938
     suka_list = []
     checker = []
     missing_players = []

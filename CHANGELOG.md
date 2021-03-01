@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2020-3-1
+### Added
+- Improved design
+- Fixed unready bug
+- Added constant 
+- Fixed name of non constant
+
 ## [2.0.0] - 2020-3-1
 ### Added
 - Combined website code with Bot Lachtan code
