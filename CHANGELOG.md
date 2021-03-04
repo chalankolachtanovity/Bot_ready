@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2020-3-4
+### Added
+- Delete message when message is not in 'bot-commands'
+- Send report message about who and what was send in not allowed channels
+
 ## [2.0.1] - 2020-3-1
 ### Added
 - Improved design
