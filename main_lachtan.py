@@ -38,6 +38,10 @@ MAXIMAL_LEN_GAME = 30
 @client.command()
 async def startsession(message, game: str, number: int):
     """Create keys, values in dict and sends message according to user preferences"""
+    if str(message.channel) != "bot-commands":
+      await message.message.delete()
+      await send_report_message(message)
+      return
     if number <= MINIMAL_NUMBER:
         return
     if number >= MAXIMAL_NUMBER:
@@ -60,6 +64,10 @@ async def startsession(message, game: str, number: int):
 @client.command()
 async def ready(message, session_to):
     """Adds user to choosen session"""
+    if str(message.channel) != "bot-commands":
+      await message.message.delete()
+      await send_report_message(message)
+      return
     if session_to != session_dict[f'{session_to}_game']:
         return
     if message.author.id in ready_list:
@@ -72,6 +80,10 @@ async def ready(message, session_to):
 
 @client.command()
 async def unready(message, session_in_unready):
+    if str(message.channel) != "bot-commands":
+      await message.message.delete()
+      await send_report_message(message)
+      return
     """Removes user from the choosen session"""
     if session_in_unready != session_dict[f'{session_in_unready}_game']:
         return
@@ -80,16 +92,28 @@ async def unready(message, session_in_unready):
 
 @client.command()
 async def russia(message):
+    if str(message.channel) != "bot-commands":
+      await message.message.delete()
+      await send_report_message(message)
+      return
     await command_russia(message)
 
 
 @client.command()
 async def cheater(message):
+    if str(message.channel) != "bot-commands":
+      await message.message.delete()
+      await send_report_message(message)
+      return
     await command_cheater(message)
 
 
 @client.command(aliases=['Pochvalen', 'Pochválen', 'pochválen'])
 async def pochvalen(message):
+    if str(message.channel) != "bot-commands":
+      await message.message.delete()
+      await send_report_message(message)
+      return
     await command_pochvalen(message)
 
 
@@ -264,11 +288,22 @@ async def command_pochvalen(message):
     await message.channel.send(embed=myEmbed)
 
 
+async def send_report_message(message):
+  report_channel = client.get_channel(777200768842858506) #test mode off: 817104867671408660
+  await report_channel.send(f'{message.author.mention} tried to send "** {message.content} **" in **{message.channel}** channel\nStop! Thats not channel for commands!')
+
+@client.event
+async def on_message(message):
+  if str(message.channel) != 'bot-commands' and message.content[0] == '!':
+    await message.delete()
+    await send_report_message(message)
+  await client.process_commands(message)
+
 
 @client.event
 async def on_member_update(before, curr):
     """Adds member to playing users list when he changed activity"""
-    games = ["counter-strike: global offensive", "payday", "test"]
+    games = ["counter-strike: global offensive", "payday 2", "test"]
 
     if curr.activity and curr.activity.name.lower() in games:
         if curr.id not in playing_users:
