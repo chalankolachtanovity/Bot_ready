@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.0.3] - 2020-3-6
+### Added
+- When someone joins the server, bot sends welcoming message
+- Fixed bug - removing id from playing_users
+
 ## [2.0.2] - 2020-3-4
 ### Added
 - Delete message when message is not in 'bot-commands'

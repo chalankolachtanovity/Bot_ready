@@ -303,22 +303,20 @@ async def on_message(message):
 @client.event
 async def on_member_update(before, curr):
     """Adds member to playing users list when he changed activity"""
-    games = ["counter-strike: global offensive", "payday 2", "test"]
-
+    games = ["counter-strike: global offensive", "payday 2"] #while test mode on, add "test"
     if curr.activity and curr.activity.name.lower() in games:
         if curr.id not in playing_users:
             playing_users.append(curr.id)
 
-    if before.activity and before.activity.name.lower(
-    ) in games and curr.activities not in games:
-        if curr.name in playing_users:
+    if before.activity and before.activity.name.lower() in games and curr.activities not in games:
+        if curr.id in playing_users:
             playing_users.remove(curr.id)
 
 
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Activity(
-        type=discord.ActivityType.listening, name='Version 2.0.0 released!'))
+        type=discord.ActivityType.playing, name='League of Legends'))
 
 
 @client.event
@@ -326,6 +324,18 @@ async def ban_timoty(message):
     banned_channels = ['welcome', 'commands-info']
     if str(message.channel) in banned_channels and message.author.name == "Tajmoti" or message.author.name == "daddyndo1":
         await message.delete()
+
+
+@client.event
+async def on_member_join(member):
+    embed=discord.Embed(title=f"**Hey {member.name}, welcome to Milošovy hrátky server!**", color=0x009dff)
+    embed.set_author(name="by chalankolachtanovity")
+    embed.add_field(name=":red_circle:Rules:", value="1. Dont write commands in general chat:bangbang:", inline=True)
+    embed.add_field(name=":red_circle:Bot Lachtan", value="**Bot Lachtan** is our unique bot with unique functions! Feel free to use him!", inline=False)
+    embed.set_footer(text="enjoy!")
+    await client.get_channel(783670260200767488).send(content=member.mention, embed=embed)
+    #test id is 812777032613888132
+
 
 keep_alive()
 client.run(os.getenv('TOKEN'))
