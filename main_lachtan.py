@@ -363,13 +363,6 @@ async def spacex_reddit():
     await spacex_post_message(channel, submission.subreddit, submission.title, submission.url)
 
 
-# async def facts_reddit():
-#   channel = client.get_channel(818248378923745291)#testid 814640180283441163
-#   subreddit = await reddit.subreddit("facts")
-#   async for submission in subreddit.stream.submissions(skip_existing=False):
-#     await spacex_post_message(channel, submission.subreddit, submission.title, submission.url)
-
-
 async def spacex_post_message(reddit_channel, subreddit_name, post_title, post_url):
     embed=discord.Embed(title=f"r/{subreddit_name}", url=f"{post_url}", description=f"{post_title}", color=0x000000)
     embed.set_image(url=f"{post_url}")
@@ -422,7 +415,6 @@ async def on_member_join(member):
 
 @client.event
 async def on_ready():
-  # await facts_reddit()
   await spacex_reddit()
   
 
