@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Bot-Lachtan"
-version = "2.0.3"
+version = "2.2.0"
 description = "Unique bot with Unique functions"
 authors = ["chalankolachtanovity@lachtan.sea"]
 
@@ -8,6 +8,7 @@ authors = ["chalankolachtanovity@lachtan.sea"]
 python = "^3.8"
 discord = "^1.0.1"
 flask = "^1.1.2"
+praw = "^7.2.0"
 
 [tool.poetry.dev-dependencies]
 

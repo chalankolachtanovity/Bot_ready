@@ -11,9 +11,7 @@ import discord
 import random
 import os
 import main_lachtan
-     
 app = Flask(__name__)
-
 
 PLAYERS = [('t_stano','Stano'), ('t_aligator','Aligator'), ('t_kmaso','Kmasko'), ('t_teetou','Teetou'), ('t_tajmoti','Tajmoti')]
 

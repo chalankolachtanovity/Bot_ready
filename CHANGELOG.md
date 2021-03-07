@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.2.0] - 2020-3-7
+### Added
+- Bot sends new post from r/SpaceX
+
+# [2.1.0] - 2020-3-7
+### Added
+- Changed default !help command 
+- Added automatized bot presences
+
 # [2.0.3] - 2020-3-6
 ### Added
 - When someone joins the server, bot sends welcoming message

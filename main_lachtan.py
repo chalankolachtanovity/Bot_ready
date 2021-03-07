@@ -1,3 +1,4 @@
+import asyncpraw
 import json
 import time
 import random
@@ -7,7 +8,6 @@ import discord
 from discord.ext import commands
 from os import listdir
 from os.path import isfile, join
-# from keep_alive import keep_alive
 from discord.ext import tasks
 from random import randint
 from threading import Timer
@@ -35,7 +35,44 @@ MINIMAL_NUMBER = 1
 MAXIMAL_NUMBER = 11
 MAXIMAL_LEN_GAME = 30
 
-@client.command()
+
+class MyHelp(commands.MinimalHelpCommand):
+    async def send_command_help(self, command):
+        embed = discord.Embed(title=self.get_command_signature(command), color=0x009dff)
+        embed.add_field(name="Help", value=command.help)
+        alias = command.aliases
+        if alias:
+            embed.add_field(name="Aliases", value=", ".join(alias), inline=False)
+
+        channel = self.get_destination()
+        await channel.send(embed=embed)
+    
+    def get_command_signature(self, command):
+        return '%s%s %s' % (self.clean_prefix, command.qualified_name, command.signature)
+
+    async def send_bot_help(self, mapping):
+        embed = discord.Embed(title='Help', description="Use `!help [command]` for more info on a command.", color=0x0062ff)
+        for cog, commands in mapping.items():
+           filtered = await self.filter_commands(commands, sort=True)
+           command_signatures = [self.get_command_signature(c) for c in filtered]
+           if command_signatures:
+                cog_name = getattr(cog, "qualified_name", "Commands Category")
+                embed.add_field(name=cog_name, value="\n\n".join(command_signatures), inline=False)
+
+        channel = self.get_destination()
+        await channel.send(embed=embed)
+
+            
+    async def send_error_message(self, error):
+        embed = discord.Embed(title="Error", description=error)
+        channel = self.get_destination()
+        await channel.send(embed=embed)
+
+
+client.help_command = MyHelp()
+
+
+@client.command(help="Creates custom session with max players.")
 async def startsession(message, game: str, number: int):
     """Create keys, values in dict and sends message according to user preferences"""
     if str(message.channel) != "bot-commands":
@@ -43,10 +80,11 @@ async def startsession(message, game: str, number: int):
       await send_report_message(message)
       return
     if number <= MINIMAL_NUMBER:
+        await message.channel.send('Error: Minimum players in the session is **2**!')
         return
     if number >= MAXIMAL_NUMBER:
         await message.channel.send(
-            'Error: Maximum players in session is **10**!')
+            'Error: Maximum players in the session is **10**!')
         return
     if len(game) >= MAXIMAL_LEN_GAME:
         await message.channel.send('Error: Maximum lenght of game is **30**!')
@@ -59,11 +97,11 @@ async def startsession(message, game: str, number: int):
     session_dict[f'{game}_ready_players'] = 0
     session_dict[f'{game}_ready_players'] += 1
     await get_message(message, message.author, game)
+    
 
 
-@client.command()
+@client.command(help="Adds user to choosen session")
 async def ready(message, session_to):
-    """Adds user to choosen session"""
     if str(message.channel) != "bot-commands":
       await message.message.delete()
       await send_report_message(message)
@@ -78,19 +116,18 @@ async def ready(message, session_to):
                       session_dict[f'{session_to}_game'])
 
 
-@client.command()
+@client.command(help="Removes user from the choosen session")
 async def unready(message, session_in_unready):
     if str(message.channel) != "bot-commands":
       await message.message.delete()
       await send_report_message(message)
       return
-    """Removes user from the choosen session"""
     if session_in_unready != session_dict[f'{session_in_unready}_game']:
         return
     await session_unready(message, session_in_unready, message.author)
 
 
-@client.command()
+@client.command(help="Sends funny picture")
 async def russia(message):
     if str(message.channel) != "bot-commands":
       await message.message.delete()
@@ -99,7 +136,7 @@ async def russia(message):
     await command_russia(message)
 
 
-@client.command()
+@client.command(help="Sends random video of best csgo plays")
 async def cheater(message):
     if str(message.channel) != "bot-commands":
       await message.message.delete()
@@ -108,7 +145,7 @@ async def cheater(message):
     await command_cheater(message)
 
 
-@client.command(aliases=['Pochvalen', 'Pochválen', 'pochválen'])
+@client.command(help="If u forget to pray, `!pochvalen` command is for you")
 async def pochvalen(message):
     if str(message.channel) != "bot-commands":
       await message.message.delete()
@@ -116,10 +153,16 @@ async def pochvalen(message):
       return
     await command_pochvalen(message)
 
+@client.command(help="spacex")
+async def spacex(message):
+  embed=discord.Embed(title="r/SpaceX", url="https://www.reddit.com/r/spacex/comments/lypki5/decommissioned_starship_snx_test_tanks_and/", description='**Sn11 launch estimated at 4pm**',color=0x000000)
+  embed.set_image(url="https://www.nasaspaceflight.com/wp-content/uploads/2021/02/NSF-2021-02-07-23-06-16-827.jpg")
+  await message.channel.send(embed=embed)
 
 
 async def first_session_message(message, first_name: str, started_session: str):
     """Sends starting session message"""
+    await game_presence(started_session)
     ready_users_list[f"{started_session}_ready_list"] = []
     ready_users_list[f"{started_session}_ready_list"].append(first_name.mention)
     max_players = f"{session_dict[f'{started_session}_max_players']}"
@@ -155,6 +198,7 @@ async def ending_of_session(message, ending_name: str, ended_session: str):
         for single_message in all_messages:
             await single_message.delete()
     await assing_fucker_role(message)  #5 minutes break
+    await default_presence()
     all_messages.clear()
     ready_list.clear()
 
@@ -218,9 +262,9 @@ async def timer_assign_fucker(choose_timer: int):
 async def assing_fucker_role(message):
     """After 5minutes it compare playing users with ready users and according to result, 
   add role to ready player but not playing"""
-    await timer_assign_fucker(300)
+    await timer_assign_fucker(300) #default time is 300
     role = message.guild.get_role(
-        812862836710834207)  #test_mode off, test_role= 812860101672828938
+        812862836710834207)  #test_role= 812860101672828938, default_role=812862836710834207
     suka_list = []
     checker = []
     missing_players = []
@@ -288,15 +332,59 @@ async def command_pochvalen(message):
     await message.channel.send(embed=myEmbed)
 
 
+async def default_presence():
+    await client.change_presence(activity=discord.Activity(
+          type=discord.ActivityType.playing, name='Waiting in lobby'))
+
+
+async def game_presence(game):
+    await client.change_presence(activity=discord.Activity(
+        type=discord.ActivityType.playing, name=f'In {game} lobby'))
+
+
+
 async def send_report_message(message):
-  report_channel = client.get_channel(777200768842858506) #test mode off: 817104867671408660
+  report_channel = client.get_channel(777200768842858506) #test channel: 817104867671408660, default channel: 777200768842858506
   await report_channel.send(f'{message.author.mention} tried to send "** {message.content} **" in **{message.channel}** channel\nStop! Thats not channel for commands!')
+
+
+###REDDIT###
+reddit = asyncpraw.Reddit(
+                    client_id="lSzeNaBj-R2kSw",
+                    client_secret = "_MWFtFngy7JEglhZhRh7HL1Dzo_BJQ",
+                    username = "CerveneTlacitko",
+                    password = "vY5D4]ZWqb'>Hrt*YcFs",
+                    user_agent = "pythonpraw"
+                    )   
+async def spacex_reddit():
+  channel = client.get_channel(818166852064247818)#testid 814640180283441163
+  subreddit = await reddit.subreddit("spacex")
+  async for submission in subreddit.stream.submissions(skip_existing=True):
+    await spacex_post_message(channel, submission.subreddit, submission.title, submission.url)
+
+
+# async def facts_reddit():
+#   channel = client.get_channel(818248378923745291)#testid 814640180283441163
+#   subreddit = await reddit.subreddit("facts")
+#   async for submission in subreddit.stream.submissions(skip_existing=False):
+#     await spacex_post_message(channel, submission.subreddit, submission.title, submission.url)
+
+
+async def spacex_post_message(reddit_channel, subreddit_name, post_title, post_url):
+    embed=discord.Embed(title=f"r/{subreddit_name}", url=f"{post_url}", description=f"{post_title}", color=0x000000)
+    embed.set_image(url=f"{post_url}")
+    await reddit_channel.send(embed=embed)     
+###REDDIT###
+
 
 @client.event
 async def on_message(message):
+  if (message.author == client.user):
+    return
   if str(message.channel) != 'bot-commands' and message.content[0] == '!':
     await message.delete()
     await send_report_message(message)
+  
   await client.process_commands(message)
 
 
@@ -311,12 +399,6 @@ async def on_member_update(before, curr):
     if before.activity and before.activity.name.lower() in games and curr.activities not in games:
         if curr.id in playing_users:
             playing_users.remove(curr.id)
-
-
-@client.event
-async def on_ready():
-    await client.change_presence(activity=discord.Activity(
-        type=discord.ActivityType.playing, name='League of Legends'))
 
 
 @client.event
@@ -335,7 +417,14 @@ async def on_member_join(member):
     embed.set_footer(text="enjoy!")
     await client.get_channel(783670260200767488).send(content=member.mention, embed=embed)
     #test id is 812777032613888132
+    #default id is 783670260200767488
 
+
+@client.event
+async def on_ready():
+  # await facts_reddit()
+  await spacex_reddit()
+  
 
 keep_alive()
 client.run(os.getenv('TOKEN'))
