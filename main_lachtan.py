@@ -451,53 +451,7 @@ async def game_presence(game):
 async def send_report_message(message):
   report_channel = client.get_channel(777200768842858506) #test channel: 817104867671408660, default channel: 777200768842858506
   await report_channel.send(f'{message.author.mention} tried to send "** {message.content} **" in **{message.channel}** channel\nStop! Thats not channel for that stuff!')
-
-
-###REDDIT###
-reddit = asyncpraw.Reddit(
-                    client_id=os.getenv('client_id'),
-                    client_secret =os.getenv('client_secret'),
-                    username = os.getenv('username'),
-                    password = os.getenv('password'),
-                    user_agent = "pythonpraw"
-                    )   
-async def spacex_reddit():
-  spacex_channel = client.get_channel(818166852064247818)#testid 818166852064247818
-  facts_channel = client.get_channel(819169067747246120)
-  spacex_subreddit = await reddit.subreddit("spacex")
-  facts_subreddit = await reddit.subreddit("facts")
-  async for spacex_submission in spacex_subreddit.stream.submissions(skip_existing=True):
-    extension = spacex_submission.url[len(spacex_submission.url) - 3 :].lower()
-    if "jpg" not in extension and "png" not in extension:
-      numbr = 1
-      await reddit_message_img(spacex_channel, spacex_submission.subreddit,
-      spacex_submission.title, spacex_submission.url, numbr
-      )
-    else:
-      nmbr = 2
-      await reddit_message_img(spacex_channel, spacex_submission.subreddit, spacex_submission.title,
-       spacex_submission.url, nmbr)
-
-    async for facts_submission in facts_subreddit.stream.submissions(skip_existing=True):
-      number = 3
-      await reddit_message_img(facts_channel, facts_submission.subreddit,
-      facts_submission.title, facts_submission.author, number
-      )
   
-
-async def reddit_message_img(reddit_channel, subreddit_name, post_title, post_link, pos):
-    if pos == 3:
-      embed=discord.Embed(title=f"r/{subreddit_name}", description=f"{post_title}", color=0x0)
-      await reddit_channel.send(embed=embed)
-    if pos !=3:
-      if pos == 1:
-        embed=discord.Embed(title=f"r/{subreddit_name}", url=f"{post_link}", description=f"{post_title}", color=0x0)
-        await reddit_channel.send(embed=embed)
-      if pos == 2:
-        embed=discord.Embed(title=f"r/{subreddit_name}", url=f"{post_link}", description=f"{post_title}", color=0x0)
-        embed.set_image(url=f"{post_link}")
-        await reddit_channel.send(embed=embed)
-###REDDIT###
 
 
 @client.event
@@ -573,8 +527,7 @@ async def on_member_join(member):
 @client.event
 async def on_ready():
   await default_presence()
-  await spacex_reddit()
   
-
 keep_alive()
-client.run(os.getenv('TOKEN')) 
+client.run(os.getenv('TOKEN'))
+
