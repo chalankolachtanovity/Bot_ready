@@ -9,23 +9,7 @@ def blue_square():
 
 def get_player_stats_generate_site(steam_id: str, player_customization: (str, str, str, str)):
     stat_dict = download_stats_for_player(steam_id)
-
-    # kd_kmasko = total_kills / total_deaths
-    # if kd_kmasko not in kmasko_kd_list:
-    #     kmasko_kd_list.append(kd_kmasko)
-    # hs_masko = total_kills_headshot * 100 / total_kills
-    # hs_masko = int(hs_masko)
-    # if hs_masko not in masko_hs_percentage:
-    #     masko_hs_percentage.append(hs_masko)
-    # if total_kills_knife not in masko_kills_knife:
-    #     masko_kills_knife.append(total_kills_knife)
-    # if total_kills_taser not in masko_kills_teaser:
-    #     masko_kills_teaser.append(total_kills_taser)
-    # if total_kills not in masko_kills:
-    #     masko_kills.append(total_kills)
-    # if total_deaths not in masko_deaths:
-    #     masko_deaths.append(total_deaths)
-
+    
     return generate_player_site(stat_dict, player_customization)
 
 
@@ -46,17 +30,22 @@ CATEGORY_TO_WEAPONS_DICT = {
 
 }
 
-
-
-def generate_player_site(samko_stats: dict, player_customization: (str, str, str, str))->str:
-  icon, title, heading, wide_image = player_customization
+def generate_player_site(samko_stats: dict, player_customization: (str, str, str, str, str, str, str))->str:
+  icon, title, name, profile_img, real_name, graph_name = player_customization
   return (f""" 
   <html>
       <link rel="icon" href="{icon}">
       <body>
         <title>{title}</title>
-         <h1>{heading}</h1>
+         <h1>{name}'s stats</h1>
+         <div>
+          <p style="float: left;"><img src="{profile_img}" height="200px" width="200px" border="1px"></p>
+          <h2><br>{name}</h2>
+          <p1>{real_name}</p1>
+         </div>
+         <h><br></h1>
         {blue_square()}
+        <button onclick="location.href = 'https://bot-lachtan.discordsam.repl.co/graph_{graph_name}'">{name}'s graph</button>
       </body>
   <body style = "font-family: Verdana, sans-serif;">    
     <table>
@@ -65,9 +54,13 @@ def generate_player_site(samko_stats: dict, player_customization: (str, str, str
     </table>
     {blue_square()}
     {generate_weapon_stats(samko_stats)}
+        <br>
+        <table border=3>
+        <tr><td>Acc -> Accuracy is ratio between shots fired and shots hit.
+      </tr></td>
+    </table>
     {blue_square()}
   </body>
-  <img src="{wide_image}" width="100%" height="20%">
   </html>
   """)
 
@@ -79,8 +72,9 @@ def generate_gnrl_stats(samko_stats: dict) -> str:
 
 def generate_weapon_category_stats(samko_stats: dict, weapons: list) -> str:
   weapon_rows = ""
+  accuracy = get_guns_accuracy(samko_stats, CATEGORY_TO_WEAPONS_DICT)
   for weapon_steam, weapon_nice in weapons:
-    weapon_rows += f"<tr><td>{'Total kills '+weapon_nice}</td><td>| {samko_stats['total_kills_'+weapon_steam]} |</td>"
+    weapon_rows += f"<tr><td>{'Total kills '+weapon_nice}</td><td>| {samko_stats['total_kills_'+weapon_steam]} | </td><td> -> Accuracy</td><td>| {accuracy[f'Accuracy {weapon_nice}']}% |</td>"
   return weapon_rows
 
 def generate_weapon_stats(samko_stats: dict) -> str:
@@ -90,3 +84,20 @@ def generate_weapon_stats(samko_stats: dict) -> str:
     html += generate_weapon_category_stats(samko_stats, weapons)
     html += "</table>"
   return html
+
+
+def get_guns_accuracy(samko_stats, weapon_dict) -> int:
+  final_dict = {}
+  for _, value in weapon_dict.items():
+    for steam_name, nice_name in value:
+      final_dict[f"Accuracy {nice_name}"] = int(int(samko_stats[f'total_hits_{steam_name}']) / int(samko_stats[f'total_shots_{steam_name}']) * 100)
+  return final_dict
+
+
+# def get_guns_accuracy(steam_id: str, guns_list) -> int:
+#   final_dict = {}
+#   stats = download_stats_for_player(steam_id)
+#   for category, guns in guns_list:
+#     for steam_weapon, nice_weapon in guns:
+#       final_dict[f"Accuracy {nice_weapon}"] = int(int(stats[f'total_hits_{steam_weapon}']) / int(stats[f'total_shots_{steam_weapon}']) * 100)
+#   return final_dict

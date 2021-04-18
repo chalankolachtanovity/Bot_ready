@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <body>
+  <style>
+  h3 {
+    text-align: center;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  h3 {
+    color: rgb(58, 187, 213)
+  }
+
+  .button {
+    background-color: #008CBA;
+    border: none;
+    color: white;
+    padding: 5px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+
+  .center {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .button4 {
+    background-color: #E4E1E1;
+    color: black;
+    padding: 2px 5px;
+    font-size: 16px;
+    margin: 0px 0px
+  }
+
+  .button5 {
+    background-color: #ffffff;
+    color: black;
+    padding: 2px 5px;
+    font-size: 16px;
+    margin: 0px 0px
+  }
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 50%;
+  }
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+    width: 166px; height: 30px;
+  }
+
+
+  tr:nth-child(even) {
+    height: 23px;
+    background-color: #dddddd;
+  }
+  p1 {
+    text-align: center
+  }
+  </style>
+
+
+<head>
+	<link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Milo%C5%A1_Zeman_2013.JPG/1200px-Milo%C5%A1_Zeman_2013.JPG">
+	<title>Milosovy hratky CSGO stats</title>
+	</script>
+</head>
+
+
+	<h3 style="ffont-family: Arial, Helvetica, sans-serif">CSGO stat viewer</h3>
+	<h1>Stats of:<br>
+          <button class="button" onclick="location.href = '/kmaso'">{{kmasko}}</button>
+            <button class="button" onclick="location.href = '/aligator'">{{aligator}}</button>
+            <button class="button" onclick="location.href = '/teetou'">{{teetou}}</button>
+          <button class="button" onclick="location.href = '/stano'">{{stano}}</button>
+        <button class="button" onclick="location.href = '/tajmoti'">{{tajmoti}}</button></h1>
+      <h1> </h1>
+
+<table class="center">
+  <tr>
+    <td class="tdclass">Current session</td>
+    <td>{{curr_session}}</td>
+  </tr>
+  <tr>
+    <td>Players ready</td>
+    <td>{{players_ready}}</td>
+  </tr>
+    <td>Max players</td>
+    <td>{{max_players}}</td>
+  </tr>
+</table>
+<style>
+.locate{
+text-align:center;
+}
+</style>
+  <h><br></h>
+  <img src="https://dummyimage.com/450x299/65696F/65696F.jpg" alt="HTML5 Icon" width="100%" height="50">
+
+  <h1>More tools:<br>
+    <button class="button" onclick="location.href = '/kdratio'">K/D ratio</button>
+      <button class="button" onclick="location.href = '/headshot_ratio'">H/S ratio</button>
+      <button class="button" onclick="location.href = '/customize_graph'">Graph</button>
+
+  </body>
+</html>
