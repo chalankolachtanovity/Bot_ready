@@ -79,13 +79,13 @@ def generate_comparison_entry(player_stat: (str, int), unit: str):
 
 HS_PAGE_CUSTOMIZATION = (
     "https://seeklogo.com/images/C/csgo-headshot-logo-D55BFE7334-seeklogo.com.png",
-    "H/S ratio", "H/S ratio Lachtanov","%",
+    "H/S ratio", "H/S ratio","%",
     ("https://staging2.filmdaily.co/wp-content/uploads/2020/05/coughing-cat-meme-lede.jpg",
      "25%", "20%"), "Best H/S ratio is", "")
 
 KD_PAGE_CUSTOMIZATION = (
     "https://preview.redd.it/lh72f11p5jo31.png?auto=webp&s=c7252a6eeffdb5cdec87726552bac678667d95a5",
-    "K/D ratio", "K/D ratio Lachtanov","",
+    "K/D ratio", "K/D ratio","",
     ("https://6.viki.io/image/7e05fe5b86b642c783dbbe1eeb92fd93.jpeg?s=900x600&e=t",
      '25%', '15%'), "Best k/d ratio is:", """<h3>Kartička pre idiotov:</h3>
             <table border=3>
