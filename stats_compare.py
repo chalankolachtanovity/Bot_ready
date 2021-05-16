@@ -23,7 +23,7 @@ def dict_add_data(players, r_dict):
 def get_last_stat(players, session):
   dict_add_data(players, after_stat_dict)
   print("stats.py > stats ready to calculate ")
-  table_insert(after_stat_dict, session) # test
+  # table_insert(after_stat_dict, session) # test #
   compare_dicts(before_stat_dict, after_stat_dict, session) 
   
 
@@ -34,6 +34,7 @@ def compare_dicts(before_d, after_d, session):
             a_i - b_i
             for a_i, b_i in zip(after_d[key], before_d[key])
         ]
+
     table_insert(difference, session)
 
     before_stat_dict.clear()

@@ -45,7 +45,6 @@ def generate_player_site(samko_stats: dict, player_customization: (str, str, str
          </div>
          <h><br></h1>
         {blue_square()}
-        <button onclick="location.href = 'https://bot-lachtan.discordsam.repl.co/graph_{graph_name}'">{name}'s graph</button>
       </body>
   <body style = "font-family: Verdana, sans-serif;">    
     <table>
@@ -92,12 +91,3 @@ def get_guns_accuracy(samko_stats, weapon_dict) -> int:
     for steam_name, nice_name in value:
       final_dict[f"Accuracy {nice_name}"] = int(int(samko_stats[f'total_hits_{steam_name}']) / int(samko_stats[f'total_shots_{steam_name}']) * 100)
   return final_dict
-
-
-# def get_guns_accuracy(steam_id: str, guns_list) -> int:
-#   final_dict = {}
-#   stats = download_stats_for_player(steam_id)
-#   for category, guns in guns_list:
-#     for steam_weapon, nice_weapon in guns:
-#       final_dict[f"Accuracy {nice_weapon}"] = int(int(stats[f'total_hits_{steam_weapon}']) / int(stats[f'total_shots_{steam_weapon}']) * 100)
-#   return final_dict

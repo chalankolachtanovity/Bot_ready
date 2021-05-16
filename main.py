@@ -33,24 +33,22 @@ ALIGATOR_DICT = download_profile(os.getenv("t_aligator"))
 TEETOU_DICT = download_profile(os.getenv("t_teetou"))
 TAJMOTI_DICT = download_profile(os.getenv("t_tajmoti"))
 
-def create_graph(name, steam_name, stat, stat1, id):
+def create_graph(name, name1, stat, stat1, id):
     fig = Figure()
     ax = fig.subplots()
     bar1 = get_data(name, stat)
-    if id == 2:
-      bar2 = get_data(name, stat1)
     session_time = get_data(name, 'datetime')
     labels = []
     bar1_list = []
     bar2_list = []
-
-    for st1 in bar1:
-      for s1 in st1:
-        bar1_list.append(s1)
     if id == 2:
+      bar2 = get_data(name, stat1)
       for st2 in bar2:
         for s2 in st2:
-          bar2_list.append(s2)   
+          bar2_list.append(s2) 
+    for st1 in bar1:
+      for s1 in st1:
+        bar1_list.append(s1) 
     for label in session_time:
       for l in label:
         labels.append(l)  
@@ -58,15 +56,15 @@ def create_graph(name, steam_name, stat, stat1, id):
     x = np.arange(len(bar1_list))
     width = 0.35
     if id == 1:
-      rects1 = ax.bar(x - width/800, bar1_list, width, label=stat)
+      rects1 = ax.bar(x - width/800, bar1_list, width, label=f"{name} {stat}")
     if id == 2:
-      rects1 = ax.bar(x - width/2, bar1_list, width, label=stat)
-      rects2 = ax.bar(x + width/2, bar2_list, width, label=stat1)
+      rects1 = ax.bar(x - width/2, bar1_list, width, label=f"{name} {stat}")
+      rects2 = ax.bar(x + width/2, bar2_list, width, label=f"{name1} {stat1}")
     ax.set_ylabel('Stats')
-    ax.set_title(f"{steam_name}'s graph")
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax.legend()
+    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+           ncol=2, mode="expand", borderaxespad=0.)
     ax.bar_label(rects1, padding=3)
     if id == 2:
       ax.bar_label(rects2, padding=3)
@@ -76,15 +74,17 @@ def create_graph(name, steam_name, stat, stat1, id):
     labels.clear()
     bar1_list.clear()
     bar2_list.clear()
-    return f"""
+    return html + f"""
 <html>
 <body>
 <head>
 	  <link rel="icon" href="https://image.freepik.com/free-icon/graph_318-10306.jpg">
 	    <title>Stats graph</title>
   </head>
-	  <h1>Session graph for {steam_name}</h1>     
-    <img src='data:image/png;base64,{data}'/>
+	  <h1>Session graph for {name}</h1> 
+    <div class='center'>    
+      <img src='data:image/png;base64,{data}'/>
+    </div>
 </body>
 </html>"""
 
@@ -97,14 +97,24 @@ def get_data(name, data):
   conn.close()
   return z
 
+
+@app.route("/test")
+def test():
+  return render_template('test.html')
+
 @app.route("/customize_graph", methods=["POST", "GET"])
 def customize_graph():
   if request.method == "POST":
     user = request.form["names"]
     stat = request.form["stats"]
-    return redirect(url_for("s_f", nam=user, sta=stat))
+    user_2 = request.form['names_1']
+    stat_2 = request.form["stats_1"]
+    if user_2 == "none" or stat_2 == "none":
+      return create_graph(user, user_2, stat, stat_2, 1)
+    else:
+      return create_graph(user, user_2, stat, stat_2, 2)
   else:
-    return render_template("index_graph.html")
+    return html
 
 @app.route("/<nam>/<sta>")
 def s_f(nam, sta):
@@ -112,13 +122,13 @@ def s_f(nam, sta):
 
 @app.route("/")
 def home():
-    print(request.environ.get('HTTP_X_REAL_IP', request.remote_addr))
     lst = main_lachtan.html_ready_list
     lachtan_dict = main_lachtan.html_dict
     if lachtan_dict == {}:
-      return render_template("index.html", kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'])
+      return render_template("scraped_sc.html", kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
+      )
     else:
-      return render_template("index.html", players_ready=(', '.join(lst)), curr_session=lachtan_dict["session"], max_players=lachtan_dict["max_players"], kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname']
+      return render_template("scraped_sc.html", players_ready=(', '.join(lst)), curr_session=lachtan_dict["session"], max_players=lachtan_dict["max_players"], kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
       )
 
 @app.route("/graph_stano")
@@ -191,3 +201,132 @@ def run():
 def keep_alive():
     t = Thread(target=run)
     t.start()
+
+html = """
+<!DOCTYPE html>
+<body>
+<style>
+custom-select {
+  position: relative;
+  font-family: Arial;
+  backround-color: red
+}
+h3 {
+  text-align: center;
+}
+
+h1 {
+  text-align: center;
+}
+
+h3 {
+  color: rgb(58, 187, 213)
+}
+
+.button {
+  background-color: #008CBA;
+  border: none;
+  color: white;
+  padding: 5px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.button4 {
+  background-color: #E4E1E1;
+  color: black;
+  padding: 2px 5px;
+  font-size: 16px;
+  margin: 0px 0px
+}
+
+.button5 {
+  background-color: #ffffff;
+  color: black;
+  padding: 2px 5px;
+  font-size: 16px;
+  margin: 0px 0px
+}
+
+label {
+  font-size: 24px;
+}
+
+form {
+  text-align: center;
+}
+
+option {
+  /* background-color: #F0F6FF; */
+  font-family: Arial;
+  font-size: 1.2em;
+  padding: 1em 1.5em;  
+}
+
+select {
+  font-family: Arial;
+  font-size: 1.2em;
+  padding: 0.2em 0.2em; 
+}
+
+</style>
+<h1>Customize your graph</h1>
+<form action="#" method="post">
+  <label for="name">Your name: </label>
+  <select name="names" id="names">
+    <option value="" selected disabled hidden>Choose here</option>
+    <option value="Tajmoti">Tajmoti</option>
+    <option value="Teetou">Teetou</option>
+    <option value="Stano">Stano</option>
+    <option value="Kmasko">Kmasko</option>
+    <option value="Aligator">Aligator</option>
+  </select>
+  <br><br>
+  <label for="stat">Stat: </label>
+  <select name="stats" id="stats">
+    <option value="" selected disabled hidden>Choose here</option>
+    <option value="total_kills">Kills</option>
+    <option value="total_deaths">Deaths</option>
+    <option value="total_planted_bombs">Planted bombs</option>
+    <option value="total_defused_bombs">Defused bombs</option>
+    <option value="total_kills_ak47">Kills ak47</option>
+  </select>
+  <br><br>
+  <label for="name">Second name: </label>
+  <select name="names_1" id="names_1">
+    <option value="" selected disabled hidden>Choose here</option>
+    <option value="none">None</option>
+    <option value="Tajmoti">Tajmoti</option>
+    <option value="Teetou">Teetou</option>
+    <option value="Stano">Stano</option>
+    <option value="Kmasko">Kmasko</option>
+    <option value="Aligator">Aligator</option>
+  </select>
+  <br><br>
+  <label for="stat">Second stat: </label>
+  <select name="stats_1" id="stats_1">
+    <option value="" selected disabled hidden>Choose here</option>
+    <option value="none">None</option>
+    <option value="total_kills">Kills</option>
+    <option value="total_deaths">Deaths</option>
+    <option value="total_planted_bombs">Planted bombs</option>
+    <option value="total_defused_bombs">Defused bombs</option>
+    <option value="total_kills_ak47">Kills ak47</option>
+  </select>
+  <br><br>
+  <input class="button" type="submit" value="submit">
+</form>
+</body>
+</html>
+"""
