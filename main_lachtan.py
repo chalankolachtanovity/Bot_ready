@@ -521,6 +521,7 @@ async def game_presence(game):
 async def send_report_message(message):
   report_channel = client.get_channel(777200768842858506) #test channel: 817104867671408660, default channel: 777200768842858506
   await report_channel.send(f'{message.author.mention} tried to send "** {message.content} **" in **{message.channel}** channel\nStop! Thats not channel for that stuff!')
+<<<<<<< HEAD
 
 
 ###REDDIT###
@@ -580,6 +581,10 @@ async def read_image(message):
   await message.channel.send(f"Picture text:\n {text}")
   print("done")
   
+=======
+  
+
+>>>>>>> origin/steam-integration
 
 @client.event
 async def on_message(message):
@@ -649,9 +654,12 @@ async def on_command_error(ctx, error):
 async def on_ready():
   print("Discord -> connected")
   await default_presence()
+<<<<<<< HEAD
   await spacex_reddit()
   await client.process_commands
+=======
+>>>>>>> origin/steam-integration
   
-
 keep_alive()
-client.run(os.getenv('TOKEN')) 
+client.run(os.getenv('TOKEN'))
+
