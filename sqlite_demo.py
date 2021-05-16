@@ -3,7 +3,6 @@ from datetime import datetime
 from pytz import timezone
 tz = timezone("Europe/Bratislava")
 
-
 def table_insert(calculated_dict, sess):
   time_now = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
   conn = sqlite3.connect("file::memory:?cache=shared")
