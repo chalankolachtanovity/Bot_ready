@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All statistics are saved in DB
 - The bot interacts more with users
 - When the user sends a command without arg or with incorrect spelling, the robot informs him about the mistake
+- Fixed bugs
 
 
 # [2.2.0] - 2020-3-7
