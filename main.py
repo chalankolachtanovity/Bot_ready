@@ -7,22 +7,14 @@ from matplotlib.figure import Figure
 import string
 from steam_stats import *
 from sqlite_demo import *
-from bs4 import BeautifulSoup
-from flask import Flask, redirect, url_for, render_template
-from stats_compare import *
-import requests
+from flask import Flask, render_template
 from flask import Flask, request
 from threading import Thread
 from flask import Flask, render_template
 from game_stats_compare import *
 from site_generator import *
 import os
-from discord.ext import commands
-import discord
-import random
-import os
 import main_lachtan
-from flask import jsonify
 app = Flask(__name__)
 
 PLAYERS = [('t_stano','Stano'), ('t_aligator','Aligator'), ('t_kmaso','Kmasko'), ('t_teetou','Teetou'), ('t_tajmoti','Tajmoti')]
