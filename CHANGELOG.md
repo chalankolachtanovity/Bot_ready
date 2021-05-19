@@ -8,12 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 # [2.3.0] - 2020-5-16
 ### Added
-- Changed design of UI
-- Bot sends session statistic everytime when session ends
-- All statistics are saved in DB
-- The bot interacts more with users
-- When the user sends a command without arg or with incorrect spelling, the robot informs him about the mistake
-- Fixed bugs
+
+# [2.3.1] - 2020-5-19
+### Added
+- improved code
 
 
 # [2.2.0] - 2020-3-7

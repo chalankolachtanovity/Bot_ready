@@ -14,7 +14,7 @@ def get_before_stat(players):
   print("stats.py > stats added to dict ")
 
 def dict_add_data(players, r_dict):
-  for env_name, nice_name in players:
+  for env_name, nice_name, _ in players:
     stats = download_stats_for_player(os.getenv(env_name))
     r_dict[f'{nice_name}'] = []
     for stat in stat_names:
@@ -23,7 +23,7 @@ def dict_add_data(players, r_dict):
 def get_last_stat(players, session):
   dict_add_data(players, after_stat_dict)
   print("stats.py > stats ready to calculate ")
-  # table_insert(after_stat_dict, session) # test #
+  # table_insert(after_stat_dict, session) # test 
   compare_dicts(before_stat_dict, after_stat_dict, session) 
   
 
