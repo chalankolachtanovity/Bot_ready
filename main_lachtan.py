@@ -22,11 +22,7 @@ playing_users = []
 final_users_list = []
 
 # Intents
-intents = discord.Intents.default()
-intents.typing = False
-intents.presences = True
-intents.members = True
-intents.voice_states = True
+intents = discord.Intents().all()
 # Intents
 
 bot = commands.Bot(intents=intents, command_prefix='!')
@@ -84,7 +80,24 @@ class MyHelp(commands.MinimalHelpCommand):
 bot.help_command = MyHelp()
 
 
-@bot.command(help="Creates custom session with max players.", aliases=['ss'])
+@bot.command()
+async def servers(ctx):  
+  servers_dict = {}
+  activeservers = bot.guilds
+  for guild in activeservers:
+      servers_dict[guild.name] = guild.id
+      print(guild)
+  print(servers_dict)
+
+@bot.command()
+async def leave(ctx, id: int):
+  activeservers = bot.guilds
+  for guild in activeservers:
+    if guild.id == id:
+      await guild.leave()
+
+
+@bot.command(help="Creates custom session with max players.", aliases=['s', 'ss'])
 async def startsession(message, game: str, number: int):
     """Create keys, values in dict and sends message according to user preferences"""
     if number <= MINIMAL_NUMBER:
@@ -106,7 +119,11 @@ async def startsession(message, game: str, number: int):
     # await move_to(session_dict[f'{game}_voice_channel'].id, message)
 
 
-@bot.command(help="Adds user to choosen session")
+# @bot.event
+# async def on_raw_reaction_add(payload):
+
+
+@bot.command(help="Adds user to choosen session", aliases=['r'])
 async def ready(message, session_to):
     if session_to != session_dict[f'{session_to}_game']:
         await message.channel.send(f'Session "{session_to}" was not found')
@@ -128,8 +145,8 @@ async def unready(message, session_in_unready):
     await session_unready(message, session_in_unready)
 
 
-@bot.command(help='delete a channel with the specified name')
-async def end(ctx, channel_name):
+@bot.command(help='delete a channel with the specified name', aliases=['e','end'])
+async def endsession(ctx, channel_name):
     await session_end(ctx, channel_name)
 
 
@@ -166,7 +183,7 @@ async def move(ctx, session):
     await move_to_session_vc(ctx, session)
 
 
-@bot.command(aliases=["join"])
+@bot.command(aliases=["joinsession"])
 async def join_to(message, session: str):
     if session != session_dict[f'{session}_voice_channel']:
         return
@@ -185,7 +202,7 @@ async def test(message, session: str):
 
 
 @bot.command(help='Voice channel bot leave')
-async def leave(ctx):
+async def leavee(ctx):
     await ctx.voice_client.disconnect()
 
 
@@ -226,7 +243,7 @@ async def spotify(ctx, user: discord.Member = None):
                 embed.add_field(name="Artist", value=activity.artist)
                 embed.add_field(name="Album", value=activity.album)
                 embed.set_footer(text="Song started at {}".format(activity.created_at.strftime("%H:%M")))
-                await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
 
 
 async def create_vc_channel(message, game: str, number: int):
@@ -282,7 +299,9 @@ async def first_session_message(message, started_session: str):
     embed = discord.Embed(title=f"**{random.choice(welcome_to_session)} {started_session} session**", description=f"**1.** {message.author}\nSession: **{started_session}**\nPlayers able to join: **{max_players}**")
     embed.set_footer(text=f"Join with > !ready {started_session}")
     first_session_ms = await message.channel.send(embed=embed)
-
+    emojis = ['❌', '✅', '📊', '🔊', '🎮']
+    for emoji in emojis:
+      await first_session_ms.add_reaction(emoji)
     all_messages.append(first_session_ms)
     ready_list.append(message.author.id)
     html_ready_list.append(message.author.name)
@@ -381,7 +400,7 @@ async def end_function(ctx, vc_name):
 
 
 async def move_to_session_vc(ctx, vc_name):
-    channel = discord.utils.get(ctx.guild.channels, name=f"{vc_name} session")
+    channel = discord.utils.get(ctx.guild.channels, name=f'{vc_name} session')
     for member in ctx.author.voice.channel.members:
         await member.move_to(channel)
 
@@ -605,8 +624,8 @@ async def on_message(message):
     if (message.author == bot.user):
         return
 
-    if str(message.channel) == 'test' and message.attachments[0].url is not None:
-        await read_image(message)
+    # if str(message.channel) == 'test' and message.attachments[0].url is not None:
+    #     await read_image(message)
 
     if str(message.channel) != 'bot-commands' and message.content[0] == '!':
         if message.author.name != 'CerveneTlacitko':
@@ -614,7 +633,7 @@ async def on_message(message):
             await send_report_message(message)
             return
 
-    if str(message.channel) == 'general' and message.content[0] == '!':
+    if str(message.channel) == 'bot-commands' and message.content[0] != '!':
         if message.content not in POSITIVE:
             await message.delete()
             await send_report_message(message)
