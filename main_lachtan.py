@@ -80,25 +80,10 @@ class MyHelp(commands.MinimalHelpCommand):
 bot.help_command = MyHelp()
 
 
-@bot.command()
-async def servers(ctx):  
-  servers_dict = {}
-  activeservers = bot.guilds
-  for guild in activeservers:
-      servers_dict[guild.name] = guild.id
-      print(guild)
-  print(servers_dict)
-
-@bot.command()
-async def leave(ctx, id: int):
-  activeservers = bot.guilds
-  for guild in activeservers:
-    if guild.id == id:
-      await guild.leave()
-
-
 @bot.command(help="Creates custom session with max players.", aliases=['s', 'ss'])
 async def startsession(message, game: str, number: int):
+    if str(message.channel) != 'bot-commands':
+        return
     """Create keys, values in dict and sends message according to user preferences"""
     if number <= MINIMAL_NUMBER:
         await message.channel.send('Error: Minimum players in the session is **2**!')
@@ -113,39 +98,76 @@ async def startsession(message, game: str, number: int):
     if f'{game}_game' in session_dict:
         return
     all_messages.append(message.message)
-    await create_vc_channel(message, game, number)
     await set_vars_to_dict(message, game, number)
     await get_message(message, game)
     # await move_to(session_dict[f'{game}_voice_channel'].id, message)
 
 
-# @bot.event
-# async def on_raw_reaction_add(payload):
+@bot.event
+async def on_raw_reaction_add(payload):
+    if payload.user_id == bot.user.id:
+        return
+    if payload.guild_id is None:
+        return
+
+    session = html_dict["session"]
+    user = bot.get_user(payload.user_id)
+    channel = await bot.fetch_channel(payload.channel_id)
+    message = await channel.fetch_message(session_dict[f'{session}_first_ms_id'])
+    session_owner = session_dict[f'{session}_started_by_id']
+
+    if payload.message_id != session_dict[f'{session}_first_ms_id']:
+        return
+
+    if str(payload.emoji) == '❌':
+        await session_unready(payload, session)
+        await message.remove_reaction('❌', user)
+    if str(payload.emoji) == '✅':
+        if payload.user_id in ready_list and payload.member.name != "CerveneTlacitko":
+            return
+        session_dict[f'{session}_ready_players'] += 1
+        await get_message(payload, session)
+
+    if str(payload.emoji) == '📊':
+        if payload.user_id != session_owner:
+            await message.remove_reaction('📊', user)
+            return
+        session_dict[f'{session}_statistics'] = True
+    if str(payload.emoji) == '🔊':
+        if payload.user_id != session_owner:
+            await message.remove_reaction('🔊', user)
+            return
+        session_dict[f'{session}_create_vc'] = True
+    if str(payload.emoji) == '🎮':
+        if payload.user_id != session_owner:
+            await message.remove_reaction('🎮', user)
+            return
+        session_dict[f'{session}_gaming_session'] = True
 
 
-@bot.command(help="Adds user to choosen session", aliases=['r'])
-async def ready(message, session_to):
-    if session_to != session_dict[f'{session_to}_game']:
-        await message.channel.send(f'Session "{session_to}" was not found')
-        return
-    if message.author.id in ready_list and message.author.name != "CerveneTlacitko":
-        await message.channel.send(f'You are already in "{session_to}"" session')
-        return
-    all_messages.append(message.message)
-    session_dict[f'{session_to}_ready_players'] += 1
-    await get_message(message, session_to)
+# @bot.command(help="Adds user to choosen session", aliases=['r'])
+# async def ready(message, session_to):
+#     if session_to != session_dict[f'{session_to}_game']:
+#         await message.channel.send(f'Session "{session_to}" was not found')
+#         return
+#     if message.author.id in ready_list and message.author.name != "CerveneTlacitko":
+#         await message.channel.send(f'You are already in "{session_to}"" session')
+#         return
+#     all_messages.append(message.message)
+#     session_dict[f'{session_to}_ready_players'] += 1
+#     await get_message(message, session_to)
     # await move_to(session_dict[f'{session_to}_voice_channel'].id, message)
 
 
-@bot.command(help="Removes user from the choosen session")
-async def unready(message, session_in_unready):
-    if session_in_unready != session_dict[f'{session_in_unready}_game']:
-        await message.channel.send(f'Session "{session_in_unready}" was not found')
-        return
-    await session_unready(message, session_in_unready)
+# @bot.command(help="Removes user from the choosen session")
+# async def unready(message, session_in_unready):
+#     if session_in_unready != session_dict[f'{session_in_unready}_game']:
+#         await message.channel.send(f'Session "{session_in_unready}" was not found')
+#         return
+#     await session_unready(message, session_in_unready)
 
 
-@bot.command(help='delete a channel with the specified name', aliases=['e','end'])
+@bot.command(help='delete a channel with the specified name', aliases=['e', 'end'])
 async def endsession(ctx, channel_name):
     await session_end(ctx, channel_name)
 
@@ -170,7 +192,6 @@ async def session_end(ctx, session):
 
     else:
         if message.content in POSITIVE:
-            session_dict[f'{session}_ready_list'].pop
             embed2 = discord.Embed(title='I hope you enjoyed this session', description=f'Session: **{session}**\nStatus: **ended**\nCheck <#842840247980261486> for session statistics!')
             await message.channel.send(embed=embed2)
             await end_function(ctx, session)
@@ -246,17 +267,17 @@ async def spotify(ctx, user: discord.Member = None):
             await ctx.send(embed=embed)
 
 
-async def create_vc_channel(message, game: str, number: int):
-    allowed_role = discord.utils.get(message.guild.roles, name="gaming")
-    banned_role = discord.utils.get(message.guild.roles, name="MUNI")
-    banned_role_1 = discord.utils.get(message.guild.roles, name="lachtan")
+async def create_vc_channel(guild, game: str, number: int):
+    allowed_role = discord.utils.get(guild.roles, name="gaming")
+    banned_role = discord.utils.get(guild.roles, name="MUNI")
+    banned_role_1 = discord.utils.get(guild.roles, name="lachtan")
     overwrites = {
         allowed_role: discord.PermissionOverwrite(connect=True),
         banned_role: discord.PermissionOverwrite(connect=False),
         banned_role_1: discord.PermissionOverwrite(connect=False),
 
     }
-    new_voice_channel = await message.guild.create_voice_channel(name=f"{game} session", category=bot.get_channel(GAMING_CATEGORY), user_limit=number, overwrites=overwrites)
+    new_voice_channel = await guild.create_voice_channel(name=f"{game} session", category=bot.get_channel(GAMING_CATEGORY), user_limit=number, overwrites=overwrites)
     session_dict[f'{game}_voice_channel'] = new_voice_channel
 
 
@@ -264,6 +285,7 @@ async def set_vars_to_dict(message, game: str, number: int):
     list_for_i_message[f"{game}_ready_list"] = []
     html_dict["session"] = game
     html_dict["max_players"] = number
+    session_dict[f'{game}_started_by_id'] = message.author.id
     session_dict[f'{game}_playing_users'] = []
     session_dict[f'{game}_ready_list'] = []
     session_dict[f'{game}_ready_list'].append(message.author.id)
@@ -271,6 +293,10 @@ async def set_vars_to_dict(message, game: str, number: int):
     session_dict[f'{game}_max_players'] = number
     session_dict[f'{game}_ready_players'] = 0
     session_dict[f'{game}_ready_players'] += 1
+    # booleans
+    session_dict[f'{game}_statistics'] = False
+    session_dict[f'{game}_create_vc'] = False
+    session_dict[f'{game}_gaming_session'] = False
 
 
 async def get_message(message, session):
@@ -290,72 +316,85 @@ async def first_session_message(message, started_session: str):
     """Sends starting session message"""
     welcome_to_session = ['This is', 'Say hi to', 'Wanna join?', "I'ts gonna be fun with ", '"Here comes the"', 'Something is waiting for you to join -', "Very tempting, isn't it?", "Now, you can't stop it", 'you, are, addicted...']
 
-    await message.guild.get_member(message.author.id).add_roles(message.guild.get_role(GAMING_ROLE))
-    await game_presence(started_session)
+    if session_dict[f'{started_session}_gaming_session'] is True:
+        await message.guild.get_member(message.author.id).add_roles(message.guild.get_role(GAMING_ROLE))
+        await game_presence(started_session)
 
-    list_for_i_message[f"{started_session}_ready_list"].append(message.author.mention)
     max_players = session_dict[f'{started_session}_max_players']
 
-    embed = discord.Embed(title=f"**{random.choice(welcome_to_session)} {started_session} session**", description=f"**1.** {message.author}\nSession: **{started_session}**\nPlayers able to join: **{max_players}**")
-    embed.set_footer(text=f"Join with > !ready {started_session}")
+    embed = discord.Embed(title=f"**{random.choice(welcome_to_session)} {started_session} session**", description=f"Started by **{message.author}**\nSession: **{started_session}**\nPlayers able to join: **{max_players}**")
+    embed.set_footer(text=f"Join with emoji reaction below ↓")
     first_session_ms = await message.channel.send(embed=embed)
+    session_dict[f'{started_session}_first_ms_id'] = first_session_ms.id
     emojis = ['❌', '✅', '📊', '🔊', '🎮']
     for emoji in emojis:
-      await first_session_ms.add_reaction(emoji)
-    all_messages.append(first_session_ms)
+        await first_session_ms.add_reaction(emoji)
+
+    list_for_i_message[f"{started_session}_ready_list"].append(message.author.mention)
     ready_list.append(message.author.id)
     html_ready_list.append(message.author.name)
 
 
-async def session_ready(message, session):
+async def session_ready(payload, session):
     """Sends ready information message"""
-    session_dict[f'{session}_ready_list'].append(message.author.id)
-    list_for_i_message[f"{session}_ready_list"].append(message.author.mention)
+    if session != session_dict[f'{session}_game']:
+        return
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
 
-    ready_user_message = session_dict[f'{session}_ready_players']
-    after_ready_list_members = ', '.join(list_for_i_message[f'{session}_ready_list'])
-    max_players = session_dict[f'{session}_max_players']
+    session_dict[f'{session}_ready_players'] += 1
+    # await move_to(session_dict[f'{session_to}_voice_channel'].id, message)
 
-    embed = discord.Embed(title=f"**{ready_user_message}. {message.author}**", description=f"Session: **{session}**\nJoined players: **{ready_user_message}**/**{max_players}**\nReady list: {after_ready_list_members}")
-    embed.set_footer(text=f"Join with > !ready {session}")
-    rdy_msg = await message.channel.send(embed=embed)
+    session_dict[f'{session}_ready_list'].append(member.id)
+    list_for_i_message[f"{session}_ready_list"].append(member.mention)
 
-    all_messages.append(rdy_msg)
-    ready_list.append(message.author.id)
-    html_ready_list.append(message.author.name)
+    if session_dict[f'{session}_gaming_session'] is True:
+        await guild.get_member(member.id).add_roles(guild.get_role(GAMING_ROLE))
 
-    await message.guild.get_member(message.author.id).add_roles(message.guild.get_role(GAMING_ROLE))
+    ready_list.append(member.id)
+    html_ready_list.append(member.name)
+
+@bot.command()
+async def ooo(ctx):
+  await ctx.channel.send('⏱️')
+  await ctx.message.add_reaction('⏱️')
+  # add timer option -> on_reaction_event... assign_fucker_role
+  # test -> it worked...
 
 
-async def ending_of_session(message, ended_session: str):
+async def ending_of_session(payload, ended_session: str):
     """Sends last ready information message, execute timer to assign fucker and delete all things that was in before session"""
     ending_messages = ["Let's go!", 'Full of upcoming fun!', 'Players - registred.', 'All ready', 'Prepare for battle', "Players, don't pee your pants", "Let's save the world", "Let's blow up the world"]
 
-    ready_list.append(message.author.id)
-    html_ready_list.append(message.author.name)
-    session_dict[f'{ended_session}_ready_list'].append(message.author.id)
-    list_for_i_message[f"{ended_session}_ready_list"].append(message.author.mention)
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
+    channel = await bot.fetch_channel(payload.channel_id)
+
+    session_dict[f'{ended_session}_ready_list'].append(member.id)
+    list_for_i_message[f"{ended_session}_ready_list"].append(member.mention)
 
     after_ready_list_members = ', '.join(list_for_i_message[f'{ended_session}_ready_list'])
     all_p = session_dict[f'{ended_session}_max_players']
     embed = discord.Embed(title=f'**{ended_session}** session. {random.choice(ending_messages)}', description=f'Players: **{all_p}**/**{all_p}**\nPlayers list: {after_ready_list_members}')
     embed.set_footer(text="Enjoy this session! Don't forget to launch CS:GO!")
-    await message.channel.send(embed=embed)
+    await channel.send(embed=embed)
 
-    for name in html_ready_list:
-        check_list(name)
-    get_before_stat(final_users_list)
+    if session_dict[f'{ended_session}_create_vc'] is True:
+        number = session_dict[f'{ended_session}_max_players']
+        await create_vc_channel(guild, ended_session, number)
+
+    if session_dict[f'{ended_session}_statistics'] is True:
+        for name in html_ready_list:
+            check_list(name)
+        get_before_stat(final_users_list)
 
     for single_message in all_messages:
         await single_message.delete()
 
-    await message.guild.get_member(message.author.id).add_roles(message.guild.get_role(GAMING_ROLE))
-    await assing_fucker_role(message, ended_session) # 2 minutes break
-    await default_presence()
+    if session_dict[f'{ended_session}_gaming_session'] is True:
+        await guild.get_member(member.id).add_roles(guild.get_role(GAMING_ROLE))
+        await default_presence()
 
-    session_dict.pop(f'{ended_session}_ready_players')
-    session_dict.pop(f'{ended_session}_game')
-    session_dict.pop(f'{ended_session}_max_players')
     html_dict.pop("session")
     html_dict.pop("max_players")
     all_messages.clear()
@@ -374,6 +413,8 @@ def check_list(user):
         final_users_list.append(('t_stano', 'Stano', STANO_DICT['personaname']))
     if user == 'Tajmoti':
         final_users_list.append(('t_tajmoti', 'Tajmoti', TAJMOTI_DICT['personaname']))
+    if user == 'andrzej':
+        final_users_list.append(('t_dron', 'Dron', DRON_DICT['personaname']))
 
 
 async def end_function(ctx, vc_name):
@@ -391,12 +432,18 @@ async def end_function(ctx, vc_name):
 
     if existing_channel is not None:
         await existing_channel.delete()
-        session_dict.pop(f"{vc_name}_voice_channel")
-
-    get_last_stat(final_users_list, vc_name)
+    if session_dict[f'{vc_name}_statistics'] is True:
+        get_last_stat(final_users_list, vc_name)
     await asyncio.sleep(5)
     await create_stats_table()
+    await pop_itmes_in_dict(vc_name)
     final_users_list.clear()
+
+
+async def pop_items_in_dict(session):
+    keys_to_pop = [f'{session}_started_by_id', f'{session}_playing_users', f'{session}_ready_list', f'{session}_game', f'{session}_max_players', f'{session}_ready_players', f'{session}_statistics', f'{session}_create_vc', f'{session}_gaming_session', f'{session}_voice_channel', f'{session}_first_ms_id']
+    for key in keys_to_pop:
+        session_dict.pop(key, None)
 
 
 async def move_to_session_vc(ctx, vc_name):
@@ -438,25 +485,22 @@ def get_stat(stat, name):
         return x
 
 
-async def session_unready(message, session: str):
-    if message.author.id not in ready_list:
+async def session_unready(payload, session: str):
+    if session != session_dict[f'{session}_game']:
+        return
+    if payload.user_id not in ready_list:
         return
     if session_dict[f'{session}_ready_players'] == 1:
         return
-    if message.author.id in playing_users:
-        playing_users.remove(message.author.id)
+    if payload.user_id in playing_users:
+        playing_users.remove(payload.user_id)
     session_dict[f'{session}_ready_players'] -= 1
 
-    list_for_i_message[f"{session}_ready_list"].remove(message.author.mention)
-    after_unready_list_members = ', '.join(list_for_i_message[f'{session}_ready_list'])
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
 
-    embed = discord.Embed(title=f"**{message.author}** is unready", description=f"session: {session}\nready list: {after_unready_list_members}")
-    unready_information_mes = await message.channel.send(embed=embed)
-
-    ready_list.remove(message.author.id)
-    html_ready_list.remove(message.author.name)
-    all_messages.append(message.message)
-    all_messages.append(unready_information_mes)
+    ready_list.remove(payload.user_id)
+    html_ready_list.remove(member.name)
 
 
 async def timer_assign_fucker(choose_timer: int):
@@ -639,23 +683,6 @@ async def on_message(message):
             await send_report_message(message)
             return
     await bot.process_commands(message)
-
-
-# @bot.event
-# async def on_voice_state_update(member, before, after):
-#     greeting = ['Eyyo', 'Wassup', 'Sup', 'Yo', "G'day", 'Hiya', 'Wazzup']
-#     vc_channel = await bot.fetch_channel(489119474457247754)
-#     txt_channel = await bot.fetch_channel(777200768842858506)
-#     i = 0
-#     members_in_vc = []
-#     for member in vc_channel.members:
-#       members_in_vc.append(member.mention)
-#       i += 1
-#       if i == 5 and session_dict == {}:
-#         embed = discord.Embed(color=0x01b70d)
-#         embed.add_field(name=f"{random.choice(greeting)} mates!", value=f"I bet that members in {vc_channel.mention} are rolling. Don't shy and start the session!\n **!startsession <game> <number>**")
-#         embed.set_footer(text="Don't reply.")
-#         await txt_channel.send(embed=embed) ##### send mentions too !###############
 
 
 @bot.event

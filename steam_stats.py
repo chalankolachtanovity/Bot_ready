@@ -2,6 +2,7 @@ import requests
 import os
 import json
 
+
 def download_stats_for_player(steam_id: str) -> dict:
     key = os.getenv('steam_key')
     stat_dict = dict()
@@ -10,9 +11,10 @@ def download_stats_for_player(steam_id: str) -> dict:
     KMASKO = KMASKO.json()
     kmaso = KMASKO['playerstats']['stats']
     for stat in kmaso:
-        stat_dict[stat['name']] = stat['value'] 
+        stat_dict[stat['name']] = stat['value']
     return stat_dict
-    
+
+
 def download_profile(steam_id: str) -> dict:
     key = os.getenv('steam_key')
     profile_url = f"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={key}&steamids={steam_id}"
