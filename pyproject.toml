@@ -15,6 +15,7 @@ dnspython3 = "^1.15.0"
 bs4 = "^0.0.1"
 pytz = "^2021.1"
 pytesseract = "^0.3.7"
+PyNaCl = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 

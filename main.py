@@ -14,7 +14,7 @@ import os
 import main_lachtan
 app = Flask(__name__)
 
-PLAYERS = [('t_stano', 'Stano'), ('t_aligator', 'Aligator'), ('t_kmaso', 'Kmasko'), ('t_teetou', 'Teetou'), ('t_tajmoti', 'Tajmoti'), ('t_dron', 'Dron')]
+PLAYERS = [('t_stano', 'Stano'), ('t_aligator', 'Aligator'), ('t_kmaso', 'Kmasko'), ('t_teetou', 'Teetou'), ('t_tajmoti', 'Tajmoti'), ('t_dron', 'Dron'), ('t_martin', 'Martin'), ('t_kulivox', 'Kulivox')]
 LETTERS = string.ascii_uppercase
 KMASKO_DICT = download_profile(os.getenv("t_kmaso"))
 STANO_DICT = download_profile(os.getenv("t_stano"))
@@ -22,6 +22,8 @@ ALIGATOR_DICT = download_profile(os.getenv("t_aligator"))
 TEETOU_DICT = download_profile(os.getenv("t_teetou"))
 TAJMOTI_DICT = download_profile(os.getenv("t_tajmoti"))
 DRON_DICT = download_profile(os.getenv("t_dron"))
+MARTIN_DICT = download_profile(os.getenv("t_martin"))
+KULIVOX_DICT = download_profile(os.getenv("t_kulivox"))
 
 
 def create_graph(name, name1, stat, stat1, id):
@@ -139,10 +141,10 @@ def home():
     lachtan_dict = main_lachtan.html_dict
     if lachtan_dict == {}:
         return render_template("scraped_sc.html", kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'],
-        dron=DRON_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
+        dron=DRON_DICT['personaname'], martin=MARTIN_DICT['personaname'], kulivox=KULIVOX_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
       )
     else:
-        return render_template("scraped_sc.html", players_ready=(', '.join(lst)), curr_session=lachtan_dict["session"], max_players=lachtan_dict["max_players"], kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'], dron=DRON_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
+        return render_template("scraped_sc.html", players_ready=(', '.join(lst)), curr_session=lachtan_dict["session"], max_players=lachtan_dict["max_players"], kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'], dron=DRON_DICT['personaname'], martin=MARTIN_DICT['personaname'], kulivox=KULIVOX_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
       )
 
 
@@ -181,6 +183,18 @@ def dron():
     return get_player_stats_generate_site(os.getenv('t_dron'), dron_customize)
 
 
+@app.route('/martin')
+def martin():
+    martin_customize = ("https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Seal_of_the_United_States_Senate.svg/1200px-Seal_of_the_United_States_Senate.svg.png","Martin", MARTIN_DICT['personaname'], MARTIN_DICT['avatarfull'], MARTIN_DICT['realname'], 'martin')
+    return get_player_stats_generate_site(os.getenv('t_martin'), martin_customize)
+
+
+@app.route('/kulivox')
+def kulivox():
+    kulivox_customize = ("https://i.pinimg.com/originals/ef/32/cc/ef32cceacbc5d21901cb46014b71c585.jpg","Kulivox",KULIVOX_DICT['personaname'], KULIVOX_DICT['avatarfull'], 'None', 'kulivox')
+    return get_player_stats_generate_site(os.getenv('t_kulivox'), kulivox_customize)
+
+
 @app.route("/kdratio")
 def kd_ratio():
     return generate_kd_page(PLAYERS)
@@ -190,10 +204,6 @@ def kd_ratio():
 def hs_ratio():
     return generate_hs_page(PLAYERS)
 
-
-@app.route("/other_stats")
-def all_stats():
-    return (f'{other_stats()}')
 
 def run():
   app.run(host='0.0.0.0', port=8080)
@@ -293,6 +303,8 @@ select {
     <option value="Kmasko">Kmasko</option>
     <option value="Aligator">Aligator</option>
     <option value="Dron">Dron</option>
+    <option value="Martin">Martin</option>
+    <option value="Kulivox">Kulivox</option>
   </select>
   <br><br>
   <label for="stat">Stat: </label>
@@ -315,6 +327,8 @@ select {
     <option value="Kmasko">Kmasko</option>
     <option value="Aligator">Aligator</option>
     <option value="Dron">Dron</option>
+    <option value="Martin">Martin</option>
+    <option value="Kulivox">Kulivox</option>
   </select>
   <br><br>
   <label for="stat">Second stat: </label>
