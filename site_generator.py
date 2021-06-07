@@ -16,7 +16,7 @@ def get_player_stats_generate_site(steam_id: str, player_customization: (str, st
 GENERAL_STATS_DICT = {
   "Total kills": "total_kills",
   "Total deaths": "total_deaths",
-  "Total wins": "total_wins",
+  "Total wins rounds": "total_wins",
   "Total demage done": "total_damage_done",
   "Total planted bombs": "total_planted_bombs",
   "Total defused bombs": "total_defused_bombs"
@@ -55,8 +55,8 @@ def generate_player_site(samko_stats: dict, player_customization: (str, str, str
       {blue_square()}
       {generate_weapon_stats(samko_stats)}
           <br>
-          <table border=3>
-          <tr><td>Acc -> Accuracy is ratio between shots fired and shots hit.
+          <table border=1>
+          <tr><td>Accuracy is ratio between shots fired and shots hit.
         </tr></td>
       </table>
       {blue_square()}

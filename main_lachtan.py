@@ -83,6 +83,7 @@ bot.help_command = MyHelp()
 @bot.command(help="Creates custom session with max players.", aliases=['s', 'ss'])
 async def startsession(message, game: str, number: int):
     if str(message.channel) != 'bot-commands':
+        await message.channel.send('Check god damn channel! Ne-ver-mind, i will do it for you, ')
         return
     """Create keys, values in dict and sends message according to user preferences"""
     if number <= MINIMAL_NUMBER:
@@ -143,6 +144,8 @@ async def on_raw_reaction_add(payload):
             await message.remove_reaction('🎮', user)
             return
         session_dict[f'{session}_gaming_session'] = True
+    if str(payload.emoji) == '<:ouremoji:851164594320048208>':
+        session_dict[f'{session}_soviet_session'] = True
 
 
 # @bot.command(help="Adds user to choosen session", aliases=['r'])
@@ -277,8 +280,18 @@ async def create_vc_channel(guild, game: str, number: int):
         banned_role_1: discord.PermissionOverwrite(connect=False),
 
     }
-    new_voice_channel = await guild.create_voice_channel(name=f"{game} session", category=bot.get_channel(GAMING_CATEGORY), user_limit=number, overwrites=overwrites)
+    new_voice_channel = await guild.create_voice_channel(name=f"{game} session", category=bot.get_channel(GAMING_CATEGORY), user_limit=number+1, overwrites=overwrites)
     session_dict[f'{game}_voice_channel'] = new_voice_channel
+    if session_dict[f'{game}_soviet_session'] is True:
+        await russian_anthem(new_voice_channel)
+
+
+async def russian_anthem(channel):
+    paths_to_anthem = ['mp3/soviet_anthem_0.mp3', 'mp3/soviet_anthem_1.mp3']
+    vc = await channel.connect()
+    vc.play(discord.FFmpegPCMAudio(random.choice(paths_to_anthem)), after=lambda e: print('done', e))
+    await asyncio.sleep(195)
+    await vc.disconnect()
 
 
 async def set_vars_to_dict(message, game: str, number: int):
@@ -297,6 +310,7 @@ async def set_vars_to_dict(message, game: str, number: int):
     session_dict[f'{game}_statistics'] = False
     session_dict[f'{game}_create_vc'] = False
     session_dict[f'{game}_gaming_session'] = False
+    session_dict[f'{game}_soviet_session'] = False
 
 
 async def get_message(message, session):
@@ -326,7 +340,7 @@ async def first_session_message(message, started_session: str):
     embed.set_footer(text=f"Join with emoji reaction below ↓")
     first_session_ms = await message.channel.send(embed=embed)
     session_dict[f'{started_session}_first_ms_id'] = first_session_ms.id
-    emojis = ['❌', '✅', '📊', '🔊', '🎮']
+    emojis = ['❌', '✅', '📊', '🔊', '🎮', '<:ouremoji:851164594320048208>']
     for emoji in emojis:
         await first_session_ms.add_reaction(emoji)
 
@@ -392,8 +406,9 @@ async def ending_of_session(payload, ended_session: str):
         await single_message.delete()
 
     if session_dict[f'{ended_session}_gaming_session'] is True:
-        await guild.get_member(member.id).add_roles(guild.get_role(GAMING_ROLE))
-        await default_presence()
+        for member_id in session_dict[f'{ended_session}_ready_list']:
+            await guild.get_member(member_id).add_roles(guild.get_role(GAMING_ROLE))
+    await default_presence()
 
     html_dict.pop("session")
     html_dict.pop("max_players")
@@ -423,8 +438,8 @@ async def end_function(ctx, vc_name):
     if existing_channel is None:
         await ctx.send(f'No channel named "{vc_name}" was found')
         return
-    for members in session_dict[f'{vc_name}_ready_list']:
-        user = bot.get_user(members)
+    for member in session_dict[f'{vc_name}_ready_list']:
+        user = bot.get_user(member)
         await ctx.guild.get_member(user.id).remove_roles(ctx.guild.get_role(GAMING_ROLE))
 
     for member in ctx.author.voice.channel.members:
@@ -435,13 +450,14 @@ async def end_function(ctx, vc_name):
     if session_dict[f'{vc_name}_statistics'] is True:
         get_last_stat(final_users_list, vc_name)
     await asyncio.sleep(5)
-    await create_stats_table()
-    await pop_itmes_in_dict(vc_name)
+    if session_dict[f'{vc_name}_statistics'] is True:
+        await create_stats_table()
+    await pop_items_in_dict(vc_name)
     final_users_list.clear()
 
 
 async def pop_items_in_dict(session):
-    keys_to_pop = [f'{session}_started_by_id', f'{session}_playing_users', f'{session}_ready_list', f'{session}_game', f'{session}_max_players', f'{session}_ready_players', f'{session}_statistics', f'{session}_create_vc', f'{session}_gaming_session', f'{session}_voice_channel', f'{session}_first_ms_id']
+    keys_to_pop = [f'{session}_started_by_id', f'{session}_playing_users', f'{session}_ready_list', f'{session}_game', f'{session}_max_players', f'{session}_ready_players', f'{session}_statistics', f'{session}_create_vc', f'{session}_gaming_session', f'{session}_voice_channel', f'{session}_first_ms_id', f'{session}_soviet_session']
     for key in keys_to_pop:
         session_dict.pop(key, None)
 
@@ -587,8 +603,9 @@ async def command_pochvalen(message):
 
 
 async def default_presence():
+    soviet_songs = ['[If Tomorrow War Comes] music: Pokrass brothers', '[The Sacred War] music: A. Alexandrov', '[Invincible and legendary] music: A. Alexandrov', '[Dark girl] music: A. Novikov', '[We the Red Soldiers]', '[White Army, Black Baron] music: Samuil Pokrass', '[Song about Shchors] music: M. Blanter', '[Red flag]', '[Katyusha] music: M. Blanter', '[Blue headkerchief] music: E. Peterburgsky']
     await bot.change_presence(activity=discord.Activity(
-        type=discord.ActivityType.listening, name='Rolling in the Deep'))
+        type=discord.ActivityType.listening, name=random.choice(soviet_songs)))
 
 
 async def game_presence(game):
@@ -708,6 +725,27 @@ async def on_member_join(member):
     embed.add_field(name=":red_circle:Bot Lachtan", value="Bot **Lachtan** is our unique bot with unique functions! Feel free to use him!", inline=False)
     embed.set_footer(text="enjoy!")
     await bot.get_channel(783670260200767488).send(content=member.mention, embed=embed)
+
+
+@bot.event
+async def on_voice_state_update(member, before, current):
+    if str(member) == 'Lachtan#1982':
+        return
+    if current.channel is None:
+        return
+    if int(current.channel.category_id) == 825872608091832332:
+        return
+    vc = await current.channel.connect()
+    vc.play(discord.FFmpegPCMAudio("mp3/rickrollaf.mp3"), after=lambda e: print('done', e))
+    await asyncio.sleep(random.randint(2,7))
+    await vc.disconnect()
+
+
+@bot.command()
+async def playy(ctx):
+    voicechannel = discord.utils.get(ctx.guild.channels, name='General') # ctx.author.voice.channel
+    vc = await voicechannel.connect()
+    vc.play(discord.FFmpegPCMAudio("rickrollaf.mp3"), after=lambda e: print('done', e))
 
 
 @bot.event
