@@ -13,7 +13,7 @@ from steam_stats import download_stats_for_player
 from discord.ext import commands
 from os import listdir
 from os.path import isfile, join
-from stats_compare import *
+from stats_compare import get_before_stat, get_last_stat
 from main import *
 all_messages = []
 ready_list = []
@@ -49,8 +49,8 @@ NERD_ROLE = 853289397616640030
 
 @bot.command()
 async def help(ctx, args=None):
-    help_mes = ['Calling 911...']
-    help_embed = discord.Embed(title="911, whats your emergency?")
+    help_mes = ['Calling 911...', 'Any problem', 'Some problem here?', 'No worries, i gotch ya']
+    help_embed = discord.Embed(title=random.choice(help_mes))
     command_names_list = [x.name for x in bot.commands]
 
     if not args:
@@ -103,9 +103,8 @@ async def help(ctx, args=None):
 @bot.command(help="Creates custom session with max players.", aliases=['s', 'ss'])
 async def startsession(message, name: str, max_players: int):
     if str(message.channel) != 'bot-commands':
-        await message.channel.send('Check god damn channel! Ne-ver-mind, i will do it for you, ')
+        await message.channel.send(f'Check the god damn channel! Nevermind, i will do it for you, its `{message.channel.name}`')
         return
-    """Create keys, values in dict and sends message according to user preferences"""
     if max_players <= MINIMAL_NUMBER:
         await message.channel.send('Error: Minimum players in the session is **2**!')
         return

@@ -4,12 +4,11 @@ from io import BytesIO
 import numpy as np
 from matplotlib.figure import Figure
 import string
-from steam_stats import *
-from sqlite_demo import *
+from steam_stats import download_profile
 from flask import Flask, render_template, request
 from threading import Thread
-from game_stats_compare import *
-from site_generator import *
+from game_stats_compare import generate_kd_page, generate_hs_page
+from site_generator import get_player_stats_generate_site
 import os
 import main_lachtan
 app = Flask(__name__)
