@@ -25,7 +25,7 @@ final_users_list = []
 intents = discord.Intents().all()
 # Intents
 
-bot = commands.Bot(intents=intents, command_prefix='!')
+bot = commands.Bot(intents=intents, command_prefix='!', help_command=None)
 
 PRAYERS = 'Otče náš, ktorý si na nebesiach, posväť sa meno tvoje, príď kráľovstvo tvoje, buď vôľa tvoja ako v nebi, tak i na zemi. Chlieb náš každodenný daj nám dnes a odpusť nám naše viny, ako i my odpúšťame svojim vinníkom, a neuveď nás do pokušenia, ale zbav nás zlého.\nAmen.\n:church::cross::church:'
 
@@ -43,65 +43,91 @@ MAXIMAL_NUMBER = 11
 MAXIMAL_LEN_GAME = 30
 GAMING_ROLE = 825875949413072957
 GAMING_CATEGORY = 825872608091832332
+SPACEX_ROLE = 853289230784004096
+NERD_ROLE = 853289397616640030
 
 
-class MyHelp(commands.MinimalHelpCommand):
-    async def send_command_help(self, command):
-        embed = discord.Embed(title=self.get_command_signature(command), color=0x009dff)
-        embed.add_field(name="Should i call 911?", value=command.help)
-        alias = command.aliases
-        if alias:
-            embed.add_field(name="Aliases", value=", ".join(alias), inline=False)
+@bot.command()
+async def help(ctx, args=None):
+    help_mes = ['Calling 911...']
+    help_embed = discord.Embed(title="911, whats your emergency?")
+    command_names_list = [x.name for x in bot.commands]
 
-        channel = self.get_destination()
-        await channel.send(embed=embed)
+    if not args:
+        help_embed.add_field(
+            name="List of supported commands:",
+            value="\n> !".join(x.name for i,x in enumerate(bot.commands)),
+            inline=False
+        )
+        help_embed.add_field(
+            name="Details",
+            value="Type `!help <command name>` for more details about each command.",
+            inline=False
+        )
 
-    def get_command_signature(self, command):
-        return '%s%s %s' % (self.clean_prefix, command.qualified_name, command.signature)
+    # If the argument is a command, get the help text from that command:
+    elif args in command_names_list:
+        help_embed.add_field(
+            name=args,
+            value=bot.get_command(args).help
+        )
 
-    async def send_bot_help(self, mapping):
-        embed = discord.Embed(title='Help', description="Use `!help [command]` for more info on a command.", color=0x0062ff)
-        for cog, commands in mapping.items():
-            filtered = await self.filter_commands(commands, sort=True)
-            command_signatures = [self.get_command_signature(c) for c in filtered]
-            if command_signatures:
-                cog_name = getattr(cog, "qualified_name", "Commands Category")
-                embed.add_field(name=f"**{cog_name}**", value="\n\n".join(command_signatures), inline=False)
+    # If someone is just trolling:
+    else:
+        help_embed.add_field(
+            name="Nope.",
+            value="Don't think I got that command"
+        )
 
-        channel = self.get_destination()
-        await channel.send(embed=embed)
-
-    async def send_error_message(self, error):
-        embed = discord.Embed(title="Error", description=error)
-        channel = self.get_destination()
-        await channel.send(embed=embed)
+    await ctx.send(embed=help_embed)
 
 
-bot.help_command = MyHelp()
+# @bot.command()
+# async def event(ctx):
+#     # if ctx.author.id != 673099696629350416:
+#     #     return
+#     await ctx.message.delete()
+#     # emojis = ['<:facts:853333168177414145>', '<:spaceX:853325340466479112>']
+#     embed = discord.Embed(title="Wassup everyone!", description="I'm sure you know I, <@783750741700509766>, am active. I've noticed that you may be interrupted by messages I send every day in #facts and #spacex. Therefore, I will leave it on you whether you want or not receive news from these two topics.", color=0xffffff)
+#     embed.add_field(name="Easy entry, Easier exit!", value="React with emojis below this message. You can remove your subscription at any time by removing your reaction.\n\n• <:facts:853333168177414145> **for facts subscription**\n• <:spaceX:853325340466479112> **for SpaceX subscription**")
+#     embed.set_footer(text='Click ⬇️ ! / Unclick ⬇️ !')
+#     # mes = await ctx.send(content="@everyone", embed=embed)
+#     # for emoji in emojis:
+#     #     await mes.add_reaction(emoji)
+#     ms = await ctx.channel.fetch_message(853339565426868234)
+#     await ms.edit(embed=embed)
+    
+
 
 
 @bot.command(help="Creates custom session with max players.", aliases=['s', 'ss'])
-async def startsession(message, game: str, number: int):
+async def startsession(message, name: str, max_players: int):
     if str(message.channel) != 'bot-commands':
         await message.channel.send('Check god damn channel! Ne-ver-mind, i will do it for you, ')
         return
     """Create keys, values in dict and sends message according to user preferences"""
-    if number <= MINIMAL_NUMBER:
+    if max_players <= MINIMAL_NUMBER:
         await message.channel.send('Error: Minimum players in the session is **2**!')
         return
-    if number >= MAXIMAL_NUMBER:
+    if max_players >= MAXIMAL_NUMBER:
         await message.channel.send(
             'Error: Maximum players in the session is **10**!')
         return
-    if len(game) >= MAXIMAL_LEN_GAME:
+    if len(name) >= MAXIMAL_LEN_GAME:
         await message.channel.send('Error: Maximum lenght of game is **30**!')
         return
-    if f'{game}_game' in session_dict:
+    if f'{name}_game' in session_dict:
         return
     all_messages.append(message.message)
-    await set_vars_to_dict(message, game, number)
-    await get_message(message, game)
-    # await move_to(session_dict[f'{game}_voice_channel'].id, message)
+    await set_vars_to_dict(message, name, max_players)
+    await get_message(message, name)
+    # await move_to(session_dict[f'{name}_voice_channel'].id, message)
+
+
+@bot.command()
+async def get_server_icon_url(ctx):
+    icon_url = ctx.guild.icon_url
+    await ctx.send(f"The icon url is: {icon_url}")
 
 
 @bot.event
@@ -111,41 +137,80 @@ async def on_raw_reaction_add(payload):
     if payload.guild_id is None:
         return
 
-    session = html_dict["session"]
     user = bot.get_user(payload.user_id)
     channel = await bot.fetch_channel(payload.channel_id)
-    message = await channel.fetch_message(session_dict[f'{session}_first_ms_id'])
-    session_owner = session_dict[f'{session}_started_by_id']
 
-    if payload.message_id != session_dict[f'{session}_first_ms_id']:
+    if session_dict != {}:
+      session = html_dict["session"]
+      message = await channel.fetch_message(session_dict[f'{session}_first_ms_id'])
+      session_owner = session_dict[f'{session}_started_by_id']
+
+      if payload.message_id != session_dict[f'{session}_first_ms_id']:
+          return
+
+      if str(payload.emoji) == '❌':
+          await session_unready(payload, session)
+          await message.remove_reaction('❌', user)
+      if str(payload.emoji) == '✅':
+          if payload.user_id in ready_list and payload.member.name != "CerveneTlacitko":
+              return
+          session_dict[f'{session}_ready_players'] += 1
+          await get_message(payload, session)
+
+      if str(payload.emoji) == '📊':
+          if payload.user_id != session_owner:
+              await message.remove_reaction('📊', user)
+              return
+          session_dict[f'{session}_statistics'] = True
+      if str(payload.emoji) == '🔊':
+          if payload.user_id != session_owner:
+              await message.remove_reaction('🔊', user)
+              return
+          session_dict[f'{session}_create_vc'] = True
+      if str(payload.emoji) == '🎮':
+          if payload.user_id != session_owner:
+              await message.remove_reaction('🎮', user)
+              return
+          session_dict[f'{session}_gaming_session'] = True
+      if str(payload.emoji) == '<:ouremoji:851164594320048208>':
+          session_dict[f'{session}_soviet_session'] = True
+
+    if str(payload.emoji) == '<:facts:853333168177414145>':
+        if payload.channel_id == 853324149523218432:
+            await channel.guild.get_member(user.id).add_roles(channel.guild.get_role(NERD_ROLE))
+            embed = discord.Embed(title='Facts subscription!', description='Wassup nerd, I have some spicy Facts for you!', color=0x4aeb1e)
+            embed.set_footer(text='Enjoy!')
+            await user.send(embed=embed)
+
+    if str(payload.emoji) == '<:spaceX:853325340466479112>':
+        if payload.channel_id == 853324149523218432:
+            await channel.guild.get_member(user.id).add_roles(channel.guild.get_role(SPACEX_ROLE))
+            embed = discord.Embed(title='SpaceX subscription!', description='You are now following the news about SpaceX!', color=0x4aeb1e)
+            embed.set_footer(text='Enjoy!')
+            await user.send(embed=embed)
+
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    if payload.user_id == bot.user.id:
+        return
+    if payload.guild_id is None:
         return
 
-    if str(payload.emoji) == '❌':
-        await session_unready(payload, session)
-        await message.remove_reaction('❌', user)
-    if str(payload.emoji) == '✅':
-        if payload.user_id in ready_list and payload.member.name != "CerveneTlacitko":
-            return
-        session_dict[f'{session}_ready_players'] += 1
-        await get_message(payload, session)
+    user = bot.get_user(payload.user_id)
+    channel = await bot.fetch_channel(payload.channel_id)
 
-    if str(payload.emoji) == '📊':
-        if payload.user_id != session_owner:
-            await message.remove_reaction('📊', user)
-            return
-        session_dict[f'{session}_statistics'] = True
-    if str(payload.emoji) == '🔊':
-        if payload.user_id != session_owner:
-            await message.remove_reaction('🔊', user)
-            return
-        session_dict[f'{session}_create_vc'] = True
-    if str(payload.emoji) == '🎮':
-        if payload.user_id != session_owner:
-            await message.remove_reaction('🎮', user)
-            return
-        session_dict[f'{session}_gaming_session'] = True
-    if str(payload.emoji) == '<:ouremoji:851164594320048208>':
-        session_dict[f'{session}_soviet_session'] = True
+    if str(payload.emoji) == '<:facts:853333168177414145>':
+        if payload.channel_id == 853324149523218432:
+            await channel.guild.get_member(user.id).remove_roles(channel.guild.get_role(NERD_ROLE))
+            embed = discord.Embed(title='Unfollowed, Facts', description='I hope you learned something new!', color=0xf40101)
+            await user.send(embed=embed)
+
+    if str(payload.emoji) == '<:spaceX:853325340466479112>':
+        if payload.channel_id == 853324149523218432:
+            await channel.guild.get_member(user.id).remove_roles(channel.guild.get_role(SPACEX_ROLE))
+            embed = discord.Embed(title='Unfollowed, SpaceX', description='I hope you enjoyed SpaceX news!', color=0xf40101)
+            await user.send(embed=embed)
 
 
 # @bot.command(help="Adds user to choosen session", aliases=['r'])
@@ -171,8 +236,8 @@ async def on_raw_reaction_add(payload):
 
 
 @bot.command(help='delete a channel with the specified name', aliases=['e', 'end'])
-async def endsession(ctx, channel_name):
-    await session_end(ctx, channel_name)
+async def endsession(ctx, session):
+    await session_end(ctx, session)
 
 
 async def session_end(ctx, session):
@@ -727,18 +792,18 @@ async def on_member_join(member):
     await bot.get_channel(783670260200767488).send(content=member.mention, embed=embed)
 
 
-@bot.event
-async def on_voice_state_update(member, before, current):
-    if str(member) == 'Lachtan#1982':
-        return
-    if current.channel is None:
-        return
-    if int(current.channel.category_id) == 825872608091832332:
-        return
-    vc = await current.channel.connect()
-    vc.play(discord.FFmpegPCMAudio("mp3/rickrollaf.mp3"), after=lambda e: print('done', e))
-    await asyncio.sleep(random.randint(2,7))
-    await vc.disconnect()
+# @bot.event
+# async def on_voice_state_update(member, before, current):
+#     if str(member) == 'Lachtan#1982':
+#         return
+#     if current.channel is None:
+#         return
+#     if int(current.channel.category_id) == 825872608091832332:
+#         return
+#     vc = await current.channel.connect()
+#     vc.play(discord.FFmpegPCMAudio("mp3/rickrollaf.mp3"), after=lambda e: print('done', e))
+#     await asyncio.sleep(random.randint(2,7))
+#     await vc.disconnect()
 
 
 @bot.command()
@@ -750,13 +815,12 @@ async def playy(ctx):
 
 @bot.event
 async def on_command_error(ctx, error):
-    print(error)
     answers = ['Huh?', 'You are trying impossible', '"Human being"', 'I just sometimes ask, why.', 'No way', 'Again?', 'Just...', 'XD', 'Wtf dude.', '2+2?', 'No comment']
     if isinstance(error, commands.CommandNotFound):
-        embed = discord.Embed(title=random.choice(answers), description='Check spelling')
+        embed = discord.Embed(title=random.choice(answers), description='Check spelling', color=0xff1414)
         await ctx.send(embed=embed)
     if isinstance(error, commands.MissingRequiredArgument):
-        embed = discord.Embed(title=random.choice(answers), description='Missing a required argument.  Do !help')
+        embed = discord.Embed(title=random.choice(answers), description=f'Missing a required argument `<{error.param.name}>`.  Do !help', color=0xff1414)
         await ctx.send(embed=embed)
     raise error
 
