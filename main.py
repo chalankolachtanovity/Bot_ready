@@ -124,8 +124,7 @@ def customize_graph():
         if user_2 == "none" or stat_2 == "none":
             return create_graph(user, user_2, stat, stat_2, 1)
         return create_graph(user, user_2, stat, stat_2, 2)
-    else:
-        return html
+    return html
 
 
 @app.route("/<nam>/<sta>")

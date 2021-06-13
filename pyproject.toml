@@ -2,7 +2,7 @@
 name = "Bot-Lachtan"
 version = "2.2.2"
 description = "Unique bot with Unique functions"
-authors = ["chalankolachtanovity"]
+authors = ["chalankolachtanovity", "tajmoti"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -16,6 +16,7 @@ bs4 = "^0.0.1"
 pytz = "^2021.1"
 pytesseract = "^0.3.7"
 PyNaCl = "^1.4.0"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 

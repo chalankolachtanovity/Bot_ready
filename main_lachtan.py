@@ -8,6 +8,7 @@ import os
 import requests
 import PIL
 import io
+import toml
 from discord import Spotify
 from steam_stats import download_stats_for_player
 from discord.ext import commands
@@ -56,7 +57,7 @@ async def help(ctx, args=None):
     if not args:
         help_embed.add_field(
             name="List of supported commands:",
-            value="\n> !".join(x.name for i,x in enumerate(bot.commands)),
+            value="\n> **!".join(x.name for i,x in enumerate(bot.commands))+"**",
             inline=False
         )
         help_embed.add_field(
@@ -309,9 +310,19 @@ async def pochvalen(message):
     await command_pochvalen(message)
 
 
-@bot.command()
-async def table(message):
-    await create_stats_table()
+@bot.command(aliases=['project'])
+async def info(ctx):
+    toml_open = toml.load(open('pyproject.toml'))['tool']['poetry']
+    project_name = toml_open['name']
+    project_version = toml_open['version']
+    project_description = toml_open['description']
+    project_authors = ', '.join(toml_open['authors'])
+    embed = discord.Embed(title='Info about project')
+    embed.add_field(name='Name:', value=toml_open['name'])
+    embed.add_field(name='Version:', value=toml_open['version'])
+    embed.add_field(name='Description:', value=toml_open['description'])
+    embed.add_field(name='Authors:', value=', '.join(toml_open['authors']))
+    await ctx.send(embed=embed)
 
 
 @bot.command()
