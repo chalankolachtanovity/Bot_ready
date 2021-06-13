@@ -123,8 +123,7 @@ def customize_graph():
         stat_2 = request.form["stats_1"]
         if user_2 == "none" or stat_2 == "none":
             return create_graph(user, user_2, stat, stat_2, 1)
-        else:
-            return create_graph(user, user_2, stat, stat_2, 2)
+        return create_graph(user, user_2, stat, stat_2, 2)
     else:
         return html
 
@@ -141,10 +140,9 @@ def home():
     if lachtan_dict == {}:
         return render_template("scraped_sc.html", kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'],
         dron=DRON_DICT['personaname'], martin=MARTIN_DICT['personaname'], kulivox=KULIVOX_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
-      )
-    else:
-        return render_template("scraped_sc.html", players_ready=(', '.join(lst)), curr_session=lachtan_dict["session"], max_players=lachtan_dict["max_players"], kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'], dron=DRON_DICT['personaname'], martin=MARTIN_DICT['personaname'], kulivox=KULIVOX_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
-      )
+        )
+    return render_template("scraped_sc.html", players_ready=(', '.join(lst)), curr_session=lachtan_dict["session"], max_players=lachtan_dict["max_players"], kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'], dron=DRON_DICT['personaname'], martin=MARTIN_DICT['personaname'], kulivox=KULIVOX_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
+    )
 
 
 @app.route("/kmaso")
