@@ -38,7 +38,7 @@ Bot Lachtan is a bot with very unique functions.
 ### !endsession
   - Ends started session
 ### !cheater
-  - Sends amazing play from `CS:GO`
+  - Sends amazing `CS:GO` play
 ### !help [command]
   - Commands info
 ### !joinsession
