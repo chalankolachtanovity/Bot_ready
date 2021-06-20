@@ -10,12 +10,19 @@ import PIL
 import io
 import toml
 from discord import Spotify
+import json
 from steam_stats import download_stats_for_player
 from discord.ext import commands
 from os import listdir
 from os.path import isfile, join
 from stats_compare import get_before_stat, get_last_stat
 from main import *
+import datetime
+
+# cogs
+from bot_lachtan_spacex import spacex_launch_to_mars, rockets_shop, buy_rocket, user_wallet, create_user_acc
+# cogs
+
 all_messages = []
 ready_list = []
 html_ready_list = []
@@ -97,8 +104,42 @@ async def help(ctx, args=None):
 #     #     await mes.add_reaction(emoji)
 #     ms = await ctx.channel.fetch_message(853339565426868234)
 #     await ms.edit(embed=embed)
-    
 
+
+@bot.command(aliases=['balance', 'doge'])
+async def wallet(ctx):
+    await user_wallet(ctx)
+    await asyncio.sleep(5)
+    await ctx.message.delete()
+
+
+@bot.command()
+async def shop(ctx):
+    await rockets_shop(ctx)
+    await asyncio.sleep(5)
+    await ctx.message.delete()
+
+@bot.command()
+async def buy(ctx, rocket):
+    await buy_rocket(ctx, rocket)
+    await asyncio.sleep(5)
+    await ctx.message.delete()
+
+@bot.command()
+# @commands.cooldown(1, 30, commands.BucketType.user)
+async def launch(ctx, rocket):
+    await spacex_launch_to_mars(ctx, rocket)
+    await ctx.message.delete()
+
+
+@launch.error
+async def command_name_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        remaining_time = str(datetime.timedelta(seconds=int(error.retry_after)))
+
+        em = discord.Embed(title=f"SpaceX rocket is not ready!",description=f"{ctx.author.mention}, I understand your passion for spacex but the rocket needs maintance. Try again in " + str(remaining_time), color=0xff0000)
+        await ctx.send(embed=em, delete_after=5)
+    await ctx.message.delete()
 
 
 @bot.command(help="Creates custom session with max players.", aliases=['s', 'ss'])
@@ -140,41 +181,6 @@ async def on_raw_reaction_add(payload):
     user = bot.get_user(payload.user_id)
     channel = await bot.fetch_channel(payload.channel_id)
 
-    if session_dict != {}:
-      session = html_dict["session"]
-      message = await channel.fetch_message(session_dict[f'{session}_first_ms_id'])
-      session_owner = session_dict[f'{session}_started_by_id']
-
-      if payload.message_id != session_dict[f'{session}_first_ms_id']:
-          return
-
-      if str(payload.emoji) == '❌':
-          await session_unready(payload, session)
-          await message.remove_reaction('❌', user)
-      if str(payload.emoji) == '✅':
-          if payload.user_id in ready_list and payload.member.name != "CerveneTlacitko":
-              return
-          session_dict[f'{session}_ready_players'] += 1
-          await get_message(payload, session)
-
-      if str(payload.emoji) == '📊':
-          if payload.user_id != session_owner:
-              await message.remove_reaction('📊', user)
-              return
-          session_dict[f'{session}_statistics'] = True
-      if str(payload.emoji) == '🔊':
-          if payload.user_id != session_owner:
-              await message.remove_reaction('🔊', user)
-              return
-          session_dict[f'{session}_create_vc'] = True
-      if str(payload.emoji) == '🎮':
-          if payload.user_id != session_owner:
-              await message.remove_reaction('🎮', user)
-              return
-          session_dict[f'{session}_gaming_session'] = True
-      if str(payload.emoji) == '<:ouremoji:851164594320048208>':
-          session_dict[f'{session}_soviet_session'] = True
-
     if str(payload.emoji) == '<:facts:853333168177414145>':
         if payload.channel_id == 853324149523218432:
             await channel.guild.get_member(user.id).add_roles(channel.guild.get_role(NERD_ROLE))
@@ -188,6 +194,40 @@ async def on_raw_reaction_add(payload):
             embed = discord.Embed(title='SpaceX subscription!', description='You are now following the news about SpaceX!', color=0x4aeb1e)
             embed.set_footer(text='Enjoy!')
             await user.send(embed=embed)
+
+    session = html_dict["session"]
+    message = await channel.fetch_message(session_dict[f'{session}_first_ms_id'])
+    session_owner = session_dict[f'{session}_started_by_id']
+
+    if payload.message_id != session_dict[f'{session}_first_ms_id']:
+        return
+
+    if str(payload.emoji) == '❌':
+        await session_unready(payload, session)
+        await message.remove_reaction('❌', user)
+    if str(payload.emoji) == '✅':
+        if payload.user_id in ready_list and payload.member.name != "CerveneTlacitko":
+            return
+        session_dict[f'{session}_ready_players'] += 1
+        await get_message(payload, session)
+
+    if str(payload.emoji) == '📊':
+        if payload.user_id != session_owner:
+            await message.remove_reaction('📊', user)
+            return
+        session_dict[f'{session}_statistics'] = True
+    if str(payload.emoji) == '🔊':
+        if payload.user_id != session_owner:
+            await message.remove_reaction('🔊', user)
+            return
+        session_dict[f'{session}_create_vc'] = True
+    if str(payload.emoji) == '🎮':
+        if payload.user_id != session_owner:
+            await message.remove_reaction('🎮', user)
+            return
+        session_dict[f'{session}_gaming_session'] = True
+    if str(payload.emoji) == '<:ouremoji:851164594320048208>':
+        session_dict[f'{session}_soviet_session'] = True
 
 
 @bot.event
@@ -211,28 +251,6 @@ async def on_raw_reaction_remove(payload):
             await channel.guild.get_member(user.id).remove_roles(channel.guild.get_role(SPACEX_ROLE))
             embed = discord.Embed(title='Unfollowed, SpaceX', description='I hope you enjoyed SpaceX news!', color=0xf40101)
             await user.send(embed=embed)
-
-
-# @bot.command(help="Adds user to choosen session", aliases=['r'])
-# async def ready(message, session_to):
-#     if session_to != session_dict[f'{session_to}_game']:
-#         await message.channel.send(f'Session "{session_to}" was not found')
-#         return
-#     if message.author.id in ready_list and message.author.name != "CerveneTlacitko":
-#         await message.channel.send(f'You are already in "{session_to}"" session')
-#         return
-#     all_messages.append(message.message)
-#     session_dict[f'{session_to}_ready_players'] += 1
-#     await get_message(message, session_to)
-    # await move_to(session_dict[f'{session_to}_voice_channel'].id, message)
-
-
-# @bot.command(help="Removes user from the choosen session")
-# async def unready(message, session_in_unready):
-#     if session_in_unready != session_dict[f'{session_in_unready}_game']:
-#         await message.channel.send(f'Session "{session_in_unready}" was not found')
-#         return
-#     await session_unready(message, session_in_unready)
 
 
 @bot.command(help='delete a channel with the specified name', aliases=['e', 'end'])
@@ -317,7 +335,7 @@ async def info(ctx):
     project_version = toml_open['version']
     project_description = toml_open['description']
     project_authors = ', '.join(toml_open['authors'])
-    embed = discord.Embed(title='Info about project')
+    embed = discord.Embed(title='Info about project', url='https://github.com/chalankolachtanovity/Bot_ready/blob/master/README.md')
     embed.add_field(name='Name:', value=toml_open['name'])
     embed.add_field(name='Version:', value=toml_open['version'])
     embed.add_field(name='Description:', value=toml_open['description'])
@@ -392,7 +410,6 @@ async def get_message(message, session):
     """Sends message according to ready players"""
     READY_PLAYERS = session_dict[f'{session}_ready_players']
     MAX_PLAYERS = session_dict[f'{session}_max_players']
-
     if READY_PLAYERS == 1:
         await first_session_message(message, session)
     if READY_PLAYERS >= 2 and READY_PLAYERS != MAX_PLAYERS:
@@ -431,7 +448,7 @@ async def session_ready(payload, session):
     guild = bot.get_guild(payload.guild_id)
     member = guild.get_member(payload.user_id)
 
-    session_dict[f'{session}_ready_players'] += 1
+    # session_dict[f'{session}_ready_players'] += 1
     # await move_to(session_dict[f'{session_to}_voice_channel'].id, message)
 
     session_dict[f'{session}_ready_list'].append(member.id)
@@ -679,8 +696,10 @@ async def command_pochvalen(message):
 
 async def default_presence():
     soviet_songs = ['[If Tomorrow War Comes] music: Pokrass brothers', '[The Sacred War] music: A. Alexandrov', '[Invincible and legendary] music: A. Alexandrov', '[Dark girl] music: A. Novikov', '[We the Red Soldiers]', '[White Army, Black Baron] music: Samuil Pokrass', '[Song about Shchors] music: M. Blanter', '[Red flag]', '[Katyusha] music: M. Blanter', '[Blue headkerchief] music: E. Peterburgsky']
+    # await bot.change_presence(activity=discord.Activity(
+    #     type=discord.ActivityType.listening, name=random.choice(soviet_songs)))
     await bot.change_presence(activity=discord.Activity(
-        type=discord.ActivityType.listening, name=random.choice(soviet_songs)))
+        type=discord.ActivityType.watching, name='Spaceflights'))
 
 
 async def game_presence(game):
@@ -759,6 +778,8 @@ async def read_image(message):
 async def on_message(message):
     if (message.author == bot.user):
         return
+
+    await create_user_acc(message)
 
     # if str(message.channel) == 'test' and message.attachments[0].url is not None:
     #     await read_image(message)
@@ -841,5 +862,7 @@ async def on_ready():
     await default_presence()
     await spacex_reddit()
     await bot.process_commands
+
+    
 keep_alive()
 bot.run(os.getenv('TOKEN'))

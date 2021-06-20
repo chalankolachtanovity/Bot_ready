@@ -6,6 +6,7 @@ Bot Lachtan is a bot with very unique functions.
 
 
 ## Main features
+- Bot can simulate spacex flight `[new]`
 - You can start your own **customizable** session and monitor CS:GO stats
 - The bot is connected with the [website](https://Bot-Lachtan-2.discordsam.repl.co) where you can find history of your stats
 
@@ -30,6 +31,8 @@ Bot Lachtan is a bot with very unique functions.
 
 ### !info 
   - Project info
+### !launch <rocket> 
+  - Launch your own rocket!
 ### !russia
   - Random russian image
 ### !startsession <name> <max_players>
