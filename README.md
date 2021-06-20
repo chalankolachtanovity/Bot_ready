@@ -38,13 +38,13 @@ Bot Lachtan is a bot with very unique functions.
 ### !startsession <name> <max_players>
   - Start customizable session
   - Aliases: 'ss'
-### !endsession
+### !endsession <name>
   - Ends started session
 ### !cheater
-  - Sends amazing play from `CS:GO`
+  - Sends amazing `CS:GO` play
 ### !help [command]
   - Commands info
-### !joinsession
+### !joinsession <name>
   - Increases max players in session so you can join
 ### !spotify [user]
   - Share what you listen!
