@@ -119,9 +119,9 @@ async def on_raw_reaction_add(payload):
     if payload.message_id not in flat_a:
         return
 
-    for name, id in session_names_ids:
-        if payload.message_id == id:
-            session = name
+    for session_name, session_id in session_names_ids:
+        if payload.message_id == session_id:
+            session = session_name
 
     user = bot.get_user(payload.user_id)
     channel = await bot.fetch_channel(payload.channel_id)
@@ -167,7 +167,7 @@ async def endsession(ctx, session):
         return
     try:
         session_dict[f'{session}_game']
-    except:
+    except KeyError:
         await ctx.send(f'There is no session called **"{session}"**', delete_after=5)
         await ctx.message.delete()
         return
@@ -261,7 +261,6 @@ async def spotify(ctx, user: discord.Member = None):
 async def stats(ctx, user: discord.Member = None):
     if user is None:
         user = ctx.author
-        pass
     name = get_username(user.name)
 
     embed = discord.Embed(title=f'Last session stats for **{name}**')
@@ -509,7 +508,7 @@ async def end_function(ctx, vc_name):
     general_channel = discord.utils.get(ctx.guild.channels, name="General")
     msg = await ctx.fetch_message(session_dict[f'{vc_name}_first_ms_id'])
 
-    if session_dict[f'{vc_name}_create_vc'] == True:
+    if session_dict[f'{vc_name}_create_vc'] is True:
         for member in ctx.author.voice.channel.members:
             await member.move_to(general_channel)
             if existing_channel is None:
