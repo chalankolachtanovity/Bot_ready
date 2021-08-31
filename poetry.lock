@@ -1,18 +1,18 @@
 [[package]]
-category = "main"
-description = "File support for asyncio."
 name = "aiofiles"
+version = "0.6.0"
+description = "File support for asyncio."
+category = "main"
 optional = false
-python-versions = ">=3.6,<4.0"
-version = "0.7.0"
+python-versions = "*"
 
 [[package]]
-category = "main"
-description = "Async http client/server framework (asyncio)"
 name = "aiohttp"
+version = "3.7.4.post0"
+description = "Async http client/server framework (asyncio)"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "3.7.4.post0"
 
 [package.dependencies]
 async-timeout = ">=3.0,<4.0"
@@ -26,40 +26,76 @@ yarl = ">=1.0,<2.0"
 speedups = ["aiodns", "brotlipy", "cchardet"]
 
 [[package]]
+name = "aiosqlite"
+version = "0.17.0"
+description = "asyncio bridge to the standard sqlite3 module"
 category = "main"
-description = "Timeout context manager for asyncio programs"
-name = "async-timeout"
-optional = false
-python-versions = ">=3.5.3"
-version = "3.0.1"
-
-[[package]]
-category = "main"
-description = "Async PRAW, an abbreviation for `Asynchronous Python Reddit API Wrapper`, is a python package that allows for simple access to reddit's API."
-name = "asyncpraw"
 optional = false
 python-versions = ">=3.6"
-version = "7.2.0"
 
 [package.dependencies]
-aiofiles = "*"
-asyncprawcore = ">=2,<3"
+typing_extensions = ">=3.7.2"
+
+[[package]]
+name = "async-generator"
+version = "1.10"
+description = "Async generators and context managers for Python 3.5+"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
+name = "async-timeout"
+version = "3.0.1"
+description = "Timeout context manager for asyncio programs"
+category = "main"
+optional = false
+python-versions = ">=3.5.3"
+
+[[package]]
+name = "asyncio-extras"
+version = "1.3.2"
+description = "Asynchronous generators, context managers and more for asyncio"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+async-generator = ">=1.3"
+
+[package.extras]
+doc = ["sphinx-autodoc-typehints"]
+test = ["pytest", "pytest-asyncio", "pytest-cov"]
+
+[[package]]
+name = "asyncpraw"
+version = "7.3.0"
+description = "Async PRAW, an abbreviation for `Asynchronous Python Reddit API Wrapper`, is a python package that allows for simple access to reddit's API."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+aiofiles = "<=0.6.0"
+aiosqlite = "<=0.17.0"
+asyncio-extras = "<=1.3.2"
+asyncprawcore = ">=2.1,<3"
 update-checker = ">=0.18"
 
 [package.extras]
 ci = ["coveralls"]
-dev = ["packaging", "pre-commit", "black", "docstrfmt", "flake8", "flynt", "isort", "pydocstyle", "sphinx", "sphinx-rtd-theme", "sphinxcontrib-trio", "asynctest (>=0.13.0)", "mock (>=0.8)", "pytest (>=2.7.3)", "pytest-asyncio", "pytest-vcr", "testfixtures (>4.13.2,<7)", "vcrpy (4.0.2)"]
+dev = ["packaging", "pre-commit", "black", "docstrfmt", "flake8", "flynt", "isort", "pydocstyle", "sphinx", "sphinx-rtd-theme", "sphinxcontrib-trio", "asynctest (>=0.13.0)", "mock (>=0.8)", "pytest (>=2.7.3)", "pytest-asyncio", "pytest-vcr", "testfixtures (>4.13.2,<7)", "vcrpy (==4.0.2)"]
 lint = ["black", "docstrfmt", "flake8", "flynt", "isort", "pydocstyle", "sphinx", "sphinx-rtd-theme", "sphinxcontrib-trio"]
 readthedocs = ["sphinx", "sphinxcontrib-trio"]
-test = ["asynctest (>=0.13.0)", "mock (>=0.8)", "pytest (>=2.7.3)", "pytest-asyncio", "pytest-vcr", "testfixtures (>4.13.2,<7)", "vcrpy (4.0.2)"]
+test = ["asynctest (>=0.13.0)", "mock (>=0.8)", "pytest (>=2.7.3)", "pytest-asyncio", "pytest-vcr", "testfixtures (>4.13.2,<7)", "vcrpy (==4.0.2)"]
 
 [[package]]
-category = "main"
-description = "Low-level asynchronous communication layer for Async PRAW 7+."
 name = "asyncprawcore"
+version = "2.2.0"
+description = "Low-level asynchronous communication layer for Async PRAW 7+."
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "2.0.1"
 
 [package.dependencies]
 aiohttp = "*"
@@ -67,137 +103,135 @@ yarl = "*"
 
 [package.extras]
 ci = ["coveralls"]
-dev = ["black", "flake8", "pre-commit", "pydocstyle", "flynt", "pytest-vcr", "vcrpy (4.0.2)", "mock (>=0.8)", "pytest", "testfixtures (>4.13.2,<7)", "asynctest (>=0.13.0)"]
-lint = ["black", "flake8", "pre-commit", "pydocstyle", "flynt"]
-test = ["pytest-vcr", "vcrpy (4.0.2)", "mock (>=0.8)", "pytest", "testfixtures (>4.13.2,<7)", "asynctest (>=0.13.0)"]
+dev = ["black", "flake8", "flynt", "pre-commit", "pydocstyle", "asynctest (>=0.13.0)", "mock (>=0.8)", "pytest", "pytest-vcr", "testfixtures (>4.13.2,<7)", "vcrpy (==4.0.2)"]
+lint = ["black", "flake8", "flynt", "pre-commit", "pydocstyle"]
+test = ["asynctest (>=0.13.0)", "mock (>=0.8)", "pytest", "pytest-vcr", "testfixtures (>4.13.2,<7)", "vcrpy (==4.0.2)"]
 
 [[package]]
-category = "main"
-description = "Classes Without Boilerplate"
 name = "attrs"
+version = "21.2.0"
+description = "Classes Without Boilerplate"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "21.2.0"
 
 [package.extras]
-dev = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "furo", "sphinx", "sphinx-notfound-page", "pre-commit"]
+dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "furo", "sphinx", "sphinx-notfound-page", "pre-commit"]
 docs = ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"]
-tests = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface"]
-tests_no_zope = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
+tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface"]
+tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
 
 [[package]]
-category = "main"
-description = "Screen-scraping library"
 name = "beautifulsoup4"
+version = "4.9.3"
+description = "Screen-scraping library"
+category = "main"
 optional = false
 python-versions = "*"
-version = "4.9.3"
 
 [package.dependencies]
-[package.dependencies.soupsieve]
-python = ">=3.0"
-version = ">1.2"
+soupsieve = {version = ">1.2", markers = "python_version >= \"3.0\""}
 
 [package.extras]
 html5lib = ["html5lib"]
 lxml = ["lxml"]
 
 [[package]]
-category = "main"
-description = "Dummy package for Beautiful Soup"
 name = "bs4"
+version = "0.0.1"
+description = "Dummy package for Beautiful Soup"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.0.1"
 
 [package.dependencies]
 beautifulsoup4 = "*"
 
 [[package]]
-category = "main"
-description = "Foreign Function Interface for Python calling C code."
 name = "cffi"
+version = "1.14.5"
+description = "Foreign Function Interface for Python calling C code."
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.14.5"
 
 [package.dependencies]
 pycparser = "*"
 
 [[package]]
-category = "main"
-description = "Universal encoding detector for Python 2 and 3"
 name = "chardet"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "4.0.0"
-
-[[package]]
+description = "Universal encoding detector for Python 2 and 3"
 category = "main"
-description = "Composable command line interface toolkit"
-name = "click"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "7.1.2"
 
 [[package]]
+name = "click"
+version = "7.1.2"
+description = "Composable command line interface toolkit"
 category = "main"
-description = "A mirror package for discord.py. Please install that instead."
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
 name = "discord"
+version = "1.0.1"
+description = "A mirror package for discord.py. Please install that instead."
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.0.1"
 
 [package.dependencies]
 "discord.py" = ">=1.0.1"
 
 [[package]]
-category = "main"
-description = "A Python wrapper for the Discord API"
 name = "discord.py"
+version = "1.7.3"
+description = "A Python wrapper for the Discord API"
+category = "main"
 optional = false
 python-versions = ">=3.5.3"
-version = "1.7.3"
 
 [package.dependencies]
 aiohttp = ">=3.6.0,<3.8.0"
 
 [package.extras]
-docs = ["sphinx (3.0.3)", "sphinxcontrib-trio (1.1.2)", "sphinxcontrib-websupport"]
+docs = ["sphinx (==3.0.3)", "sphinxcontrib-trio (==1.1.2)", "sphinxcontrib-websupport"]
 voice = ["PyNaCl (>=1.3.0,<1.5)"]
 
 [[package]]
-category = "main"
-description = "A DNS toolkit for Python"
 name = "dnspython"
+version = "1.15.0"
+description = "A DNS toolkit for Python"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.15.0"
 
 [[package]]
-category = "main"
-description = "A DNS toolkit for Python 3.x"
 name = "dnspython3"
+version = "1.15.0"
+description = "A DNS toolkit for Python 3.x"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.15.0"
 
 [package.dependencies]
 dnspython = "1.15.0"
 
 [[package]]
-category = "main"
-description = "A simple framework for building complex web applications."
 name = "flask"
+version = "1.1.4"
+description = "A simple framework for building complex web applications."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "1.1.4"
 
 [package.dependencies]
-Jinja2 = ">=2.10.1,<3.0"
-Werkzeug = ">=0.15,<2.0"
 click = ">=5.1,<8.0"
 itsdangerous = ">=0.24,<2.0"
+Jinja2 = ">=2.10.1,<3.0"
+Werkzeug = ">=0.15,<2.0"
 
 [package.extras]
 dev = ["pytest", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinxcontrib-log-cabinet", "sphinx-issues"]
@@ -205,28 +239,28 @@ docs = ["sphinx", "pallets-sphinx-themes", "sphinxcontrib-log-cabinet", "sphinx-
 dotenv = ["python-dotenv"]
 
 [[package]]
-category = "main"
-description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
+version = "3.2"
+description = "Internationalized Domain Names in Applications (IDNA)"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "3.2"
 
 [[package]]
-category = "main"
-description = "Various helpers to pass data to untrusted environments and back."
 name = "itsdangerous"
+version = "1.1.0"
+description = "Various helpers to pass data to untrusted environments and back."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.1.0"
 
 [[package]]
-category = "main"
-description = "A very fast and expressive template engine."
 name = "jinja2"
+version = "2.11.3"
+description = "A very fast and expressive template engine."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "2.11.3"
 
 [package.dependencies]
 MarkupSafe = ">=0.23"
@@ -235,56 +269,56 @@ MarkupSafe = ">=0.23"
 i18n = ["Babel (>=0.8)"]
 
 [[package]]
-category = "main"
-description = "Safely add untrusted strings to HTML/XML markup."
 name = "markupsafe"
-optional = false
-python-versions = ">=3.6"
 version = "2.0.1"
+description = "Safely add untrusted strings to HTML/XML markup."
+category = "main"
+optional = false
+python-versions = ">=3.6"
 
 [[package]]
-category = "main"
-description = "multidict implementation"
 name = "multidict"
-optional = false
-python-versions = ">=3.6"
 version = "5.1.0"
-
-[[package]]
+description = "multidict implementation"
 category = "main"
-description = "Python Imaging Library (Fork)"
-name = "pillow"
 optional = false
 python-versions = ">=3.6"
-version = "8.2.0"
 
 [[package]]
+name = "pillow"
+version = "8.2.0"
+description = "Python Imaging Library (Fork)"
 category = "main"
-description = "PRAW, an acronym for `Python Reddit API Wrapper`, is a python package that allows for simple access to reddit's API."
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "praw"
+version = "7.3.0"
+description = "PRAW, an acronym for `Python Reddit API Wrapper`, is a python package that allows for simple access to reddit's API."
+category = "main"
 optional = false
 python-versions = "~=3.6"
-version = "7.2.0"
 
 [package.dependencies]
-prawcore = ">=2,<3"
+prawcore = ">=2.1,<3"
 update-checker = ">=0.18"
 websocket-client = ">=0.54.0"
 
 [package.extras]
 ci = ["coveralls"]
-dev = ["packaging", "pre-commit", "black", "flake8", "flynt", "isort", "pydocstyle", "sphinx", "sphinx-rtd-theme", "betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)"]
-lint = ["black", "flake8", "flynt", "isort", "pydocstyle", "sphinx", "sphinx-rtd-theme"]
+dev = ["packaging", "pre-commit", "black", "docstrfmt", "flake8", "flynt", "isort", "pydocstyle", "sphinx", "sphinx-rtd-theme", "betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)"]
+lint = ["black", "docstrfmt", "flake8", "flynt", "isort", "pydocstyle", "sphinx", "sphinx-rtd-theme"]
 readthedocs = ["sphinx"]
 test = ["betamax (>=0.8,<0.9)", "betamax-matchers (>=0.3.0,<0.5)", "pytest (>=2.7.3)"]
 
 [[package]]
-category = "main"
-description = "Low-level communication layer for PRAW 4+."
 name = "prawcore"
+version = "2.2.0"
+description = "Low-level communication layer for PRAW 4+."
+category = "main"
 optional = false
 python-versions = "~=3.6"
-version = "2.2.0"
 
 [package.dependencies]
 requests = ">=2.6.0,<3.0"
@@ -296,20 +330,20 @@ lint = ["black", "flake8", "pre-commit", "pydocstyle", "flynt"]
 test = ["betamax (>=0.8,<0.9)", "betamax-matchers (>=0.4.0,<0.5)", "betamax-serializers (>=0.2.0,<0.3)", "mock (>=0.8)", "pytest", "testfixtures (>4.13.2,<7)"]
 
 [[package]]
-category = "main"
-description = "C parser in Python"
 name = "pycparser"
+version = "2.20"
+description = "C parser in Python"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "2.20"
 
 [[package]]
-category = "main"
-description = "Python driver for MongoDB <http://www.mongodb.org>"
 name = "pymongo"
+version = "3.11.4"
+description = "Python driver for MongoDB <http://www.mongodb.org>"
+category = "main"
 optional = false
 python-versions = "*"
-version = "3.11.4"
 
 [package.extras]
 aws = ["pymongo-auth-aws (<2.0.0)"]
@@ -322,12 +356,12 @@ tls = ["ipaddress"]
 zstd = ["zstandard"]
 
 [[package]]
-category = "main"
-description = "Python binding to the Networking and Cryptography (NaCl) library"
 name = "pynacl"
+version = "1.4.0"
+description = "Python binding to the Networking and Cryptography (NaCl) library"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.4.0"
 
 [package.dependencies]
 cffi = ">=1.4.1"
@@ -335,79 +369,78 @@ six = "*"
 
 [package.extras]
 docs = ["sphinx (>=1.6.5)", "sphinx-rtd-theme"]
-tests = ["pytest (>=3.2.1,<3.3.0 || >3.3.0)", "hypothesis (>=3.27.0)"]
+tests = ["pytest (>=3.2.1,!=3.3.0)", "hypothesis (>=3.27.0)"]
 
 [[package]]
-category = "main"
-description = "Python-tesseract is a python wrapper for Google's Tesseract-OCR"
 name = "pytesseract"
+version = "0.3.7"
+description = "Python-tesseract is a python wrapper for Google's Tesseract-OCR"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.3.7"
 
 [package.dependencies]
 Pillow = "*"
 
 [[package]]
-category = "main"
-description = "World timezone definitions, modern and historical"
 name = "pytz"
+version = "2021.1"
+description = "World timezone definitions, modern and historical"
+category = "main"
 optional = false
 python-versions = "*"
-version = "2021.1"
 
 [[package]]
-category = "main"
-description = "Python HTTP for Humans."
 name = "requests"
+version = "2.15.1"
+description = "Python HTTP for Humans."
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.15.1"
 
 [package.extras]
 security = ["cryptography (>=1.3.4)", "idna (>=2.0.0)", "pyOpenSSL (>=0.14)"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
+socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 
 [[package]]
-category = "main"
-description = "Python 2 and 3 compatibility utilities"
 name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "1.16.0"
 
 [[package]]
-category = "main"
-description = "A modern CSS selector implementation for Beautiful Soup."
-marker = "python_version >= \"3.0\""
 name = "soupsieve"
+version = "2.2.1"
+description = "A modern CSS selector implementation for Beautiful Soup."
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "2.2.1"
 
 [[package]]
-category = "main"
-description = "Python Library for Tom's Obvious, Minimal Language"
 name = "toml"
+version = "0.10.2"
+description = "Python Library for Tom's Obvious, Minimal Language"
+category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "0.10.2"
 
 [[package]]
-category = "main"
-description = "Backported and Experimental Type Hints for Python 3.5+"
 name = "typing-extensions"
+version = "3.10.0.0"
+description = "Backported and Experimental Type Hints for Python 3.5+"
+category = "main"
 optional = false
 python-versions = "*"
-version = "3.10.0.0"
 
 [[package]]
-category = "main"
-description = "A python module that will check for package updates."
 name = "update-checker"
+version = "0.18.0"
+description = "A python module that will check for package updates."
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.18.0"
 
 [package.dependencies]
 requests = ">=2.3.0"
@@ -418,45 +451,46 @@ lint = ["black", "flake8"]
 test = ["pytest (>=2.7.3)"]
 
 [[package]]
-category = "main"
-description = "WebSocket client for Python with low level API options"
 name = "websocket-client"
+version = "1.1.0"
+description = "WebSocket client for Python with low level API options"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "1.1.0"
 
 [[package]]
-category = "main"
-description = "The comprehensive WSGI web application library."
 name = "werkzeug"
+version = "1.0.1"
+description = "The comprehensive WSGI web application library."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "1.0.1"
 
 [package.extras]
 dev = ["pytest", "pytest-timeout", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinx-issues"]
 watchdog = ["watchdog"]
 
 [[package]]
-category = "main"
-description = "Yet another URL library"
 name = "yarl"
+version = "1.6.3"
+description = "Yet another URL library"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "1.6.3"
 
 [package.dependencies]
 idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "30cc0da950018374f5fd5ac8007c67ab18661eb7ccc6f0b5c1c75d02b6421ae6"
+lock-version = "1.1"
 python-versions = "^3.8"
+content-hash = "30cc0da950018374f5fd5ac8007c67ab18661eb7ccc6f0b5c1c75d02b6421ae6"
 
 [metadata.files]
 aiofiles = [
-    {file = "aiofiles-0.7.0-py3-none-any.whl", hash = "sha256:c67a6823b5f23fcab0a2595a289cec7d8c863ffcb4322fb8cd6b90400aedfdbc"},
-    {file = "aiofiles-0.7.0.tar.gz", hash = "sha256:a1c4fc9b2ff81568c83e21392a82f344ea9d23da906e4f6a52662764545e19d4"},
+    {file = "aiofiles-0.6.0-py3-none-any.whl", hash = "sha256:bd3019af67f83b739f8e4053c6c0512a7f545b9a8d91aaeab55e6e0f9d123c27"},
+    {file = "aiofiles-0.6.0.tar.gz", hash = "sha256:e0281b157d3d5d59d803e3f4557dcc9a3dff28a4dd4829a9ff478adae50ca092"},
 ]
 aiohttp = [
     {file = "aiohttp-3.7.4.post0-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:3cf75f7cdc2397ed4442594b935a11ed5569961333d49b7539ea741be2cc79d5"},
@@ -497,17 +531,29 @@ aiohttp = [
     {file = "aiohttp-3.7.4.post0-cp39-cp39-win_amd64.whl", hash = "sha256:02f46fc0e3c5ac58b80d4d56eb0a7c7d97fcef69ace9326289fb9f1955e65cfe"},
     {file = "aiohttp-3.7.4.post0.tar.gz", hash = "sha256:493d3299ebe5f5a7c66b9819eacdcfbbaaf1a8e84911ddffcdc48888497afecf"},
 ]
+aiosqlite = [
+    {file = "aiosqlite-0.17.0-py3-none-any.whl", hash = "sha256:6c49dc6d3405929b1d08eeccc72306d3677503cc5e5e43771efc1e00232e8231"},
+    {file = "aiosqlite-0.17.0.tar.gz", hash = "sha256:f0e6acc24bc4864149267ac82fb46dfb3be4455f99fe21df82609cc6e6baee51"},
+]
+async-generator = [
+    {file = "async_generator-1.10-py3-none-any.whl", hash = "sha256:01c7bf666359b4967d2cda0000cc2e4af16a0ae098cbffcb8472fb9e8ad6585b"},
+    {file = "async_generator-1.10.tar.gz", hash = "sha256:6ebb3d106c12920aaae42ccb6f787ef5eefdcdd166ea3d628fa8476abe712144"},
+]
 async-timeout = [
     {file = "async-timeout-3.0.1.tar.gz", hash = "sha256:0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f"},
     {file = "async_timeout-3.0.1-py3-none-any.whl", hash = "sha256:4291ca197d287d274d0b6cb5d6f8f8f82d434ed288f962539ff18cc9012f9ea3"},
 ]
+asyncio-extras = [
+    {file = "asyncio_extras-1.3.2-py3-none-any.whl", hash = "sha256:839568ba07c3470c9aa2c441aa2417c108f7d3755862bc2bd39d69b524303993"},
+    {file = "asyncio_extras-1.3.2.tar.gz", hash = "sha256:084b62bebc19c6ba106d438a274bbb5566941c469128cd4af1a85f00a2c81f8d"},
+]
 asyncpraw = [
-    {file = "asyncpraw-7.2.0-py3-none-any.whl", hash = "sha256:817a4881ce84bda17a207f93156419825c7934b227244a8f05bdfcf557134181"},
-    {file = "asyncpraw-7.2.0.tar.gz", hash = "sha256:7890414f0c5f8f3747dfe8a4a1ca3348064ef124f17b744cf0d12f8e202d38cd"},
+    {file = "asyncpraw-7.3.0-py3-none-any.whl", hash = "sha256:1841b8c41fea3706745359af1a772115e431c31f0fc710348201a5911387a7f6"},
+    {file = "asyncpraw-7.3.0.tar.gz", hash = "sha256:9a249a56025225872355aaa9d729fd0a3e18b003466a980a99be7c95d5115c5c"},
 ]
 asyncprawcore = [
-    {file = "asyncprawcore-2.0.1-py3-none-any.whl", hash = "sha256:d800228a8009644d42d01d1adf16379f41f661a6344dc1fe07060a3abe4354e5"},
-    {file = "asyncprawcore-2.0.1.tar.gz", hash = "sha256:79ac9b4518888d877e19e88d8685dea619f7ae59a41bde19724fcf529d24870e"},
+    {file = "asyncprawcore-2.2.0-py3-none-any.whl", hash = "sha256:9dcc8a13f9c1c0d10a4ce3029f6a952cb464081f2b3c6756767a013312099660"},
+    {file = "asyncprawcore-2.2.0.tar.gz", hash = "sha256:a9eb25e76f2eb676ff5e233c049190ebf71e2e735aa1e1b58507e1597be7b7bf"},
 ]
 attrs = [
     {file = "attrs-21.2.0-py2.py3-none-any.whl", hash = "sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1"},
@@ -723,8 +769,8 @@ pillow = [
     {file = "Pillow-8.2.0.tar.gz", hash = "sha256:a787ab10d7bb5494e5f76536ac460741788f1fbce851068d73a87ca7c35fc3e1"},
 ]
 praw = [
-    {file = "praw-7.2.0-py3-none-any.whl", hash = "sha256:f8e9f1854368a833d09208ca6f0318220d488a0c6660ff5c38391e55f50f0aa9"},
-    {file = "praw-7.2.0.tar.gz", hash = "sha256:434600bb77264dc5f8f7635eb0541a6c992b87e1d9e9f6e3f40fe98e2c508152"},
+    {file = "praw-7.3.0-py3-none-any.whl", hash = "sha256:98d435856b34851aaf88575b65b4864f1f7f848913b47e046243bb126682a66f"},
+    {file = "praw-7.3.0.tar.gz", hash = "sha256:9773fb5a2f5ab910d6f8e14da84e81d8d3d868261745371341d8b2043588ba7c"},
 ]
 prawcore = [
     {file = "prawcore-2.2.0-py3-none-any.whl", hash = "sha256:cb7a01e43202233d62c4f9c0da890f6e6a534cebc16fb6ef1e71aff7077b0f42"},

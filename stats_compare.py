@@ -16,7 +16,7 @@ def get_before_stat(players):
 
 
 def dict_add_data(players, r_dict):
-    for env_name, nice_name, _ in players:
+    for env_name, nice_name, _, a in players:
         stats = download_stats_for_player(os.getenv(env_name))
         r_dict[f'{nice_name}'] = []
         for stat in stat_names:

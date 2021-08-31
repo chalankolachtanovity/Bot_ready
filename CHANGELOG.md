@@ -6,13 +6,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-# [2.3.0] - 2020-5-16
-### Added
+# [2.4.2] - 2020-8-31
+### Modified
+- Reworked `!startsession` command
+    + Able to create multiple sessions
+    + Updated UI
+    + Session is controlled with emojis
+        - Ready to session
+        - Unready to session
+        - Change type of session
+        - End session
+    + Bonus weapon for every gaming session 
+
+
+- Edited `!help` command
+
 
 # [2.3.1] - 2020-5-19
 ### Added
-- improved code
-
+- Improved code
 
 # [2.2.0] - 2020-3-7
 ### Added
