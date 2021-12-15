@@ -2,6 +2,7 @@ import sqlite3
 import base64
 from io import BytesIO
 import numpy as np
+import re
 from matplotlib.figure import Figure
 import string
 from steam_stats import download_profile
@@ -11,7 +12,14 @@ from game_stats_compare import generate_kd_page, generate_hs_page
 from site_generator import get_player_stats_generate_site
 import os
 import main_lachtan
+from flask_restful import Resource, Api, reqparse
+import pandas as pd
+import ast
+
+
+
 app = Flask(__name__)
+api = Api(app)
 
 PLAYERS = [('t_stano', 'Stano'), ('t_aligator', 'Aligator'), ('t_kmaso', 'Kmasko'), ('t_teetou', 'Teetou'), ('t_tajmoti', 'Tajmoti'), ('t_dron', 'Dron'), ('t_martin', 'Martin'), ('t_kulivox', 'Kulivox')]
 LETTERS = string.ascii_uppercase
@@ -25,83 +33,37 @@ MARTIN_DICT = download_profile(os.getenv("t_martin"))
 KULIVOX_DICT = download_profile(os.getenv("t_kulivox"))
 
 
-def create_graph(name, name1, stat, stat1, id):
-    fig = Figure()
-    ax = fig.subplots()
-    bar1 = get_data(name, stat)
-    session_time_name = get_data(name, 'datetime')
-    session_time_name_1 = get_data(name1, 'datetime')
-    session_time = session_time_name
-    if len(session_time_name) != len(session_time_name_1):
-        if len(session_time_name) >= len(session_time_name_1):
-            session_time = session_time_name
-        if len(session_time_name_1) >= len(session_time_name):
-            session_time = session_time_name_1
-    labels = []
-    bar1_list = []
-    bar2_list = []
-    if id == 2:
-        bar2 = get_data(name1, stat1)
-        if len(bar1) >= len(bar2):
-          difference = int(len(bar1) - len(bar2))
-        if len(bar2) >= len(bar1):
-          difference = int(len(bar2) - len(bar1))
 
-        if len(bar1) != len(bar2):
-          for x in range(difference):
-              if len(bar1) <= len(bar2):
-                  bar1_list.append(int(0))
-              elif len(bar1) >= len(bar2):
-                  bar2_list.append(int(0))
-              elif len(bar2) <= len(bar1):
-                  bar2_list.append(int(0))
-              elif len(bar2) >= len(bar1):
-                  bar1_list.append(0)
-        for st2 in bar2:
-            for s2 in st2:
-                bar2_list.append(s2)
-    for st1 in bar1:
-        for s1 in st1:
-            bar1_list.append(s1)
-    for label in session_time:
-        for l in label:
-            labels.append(l)
+import json 
 
-    x = np.arange(len(bar1_list))
-    width = 0.35
-    if id == 1:
-        rects1 = ax.bar(x - width / 800, bar1_list, width, label=f"{name} {stat}")
-    if id == 2:
-        rects1 = ax.bar(x - width / 2, bar1_list, width, label=f"{name} {stat}")
-        rects2 = ax.bar(x + width / 2, bar2_list, width, label=f"{name1} {stat1}")
-    ax.set_ylabel('Stats')
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
-           ncol=2, mode="expand", borderaxespad=0.)
-    ax.bar_label(rects1, padding=3)
-    if id == 2:
-        ax.bar_label(rects2, padding=3)
-    buf = BytesIO()
-    fig.savefig(buf, format="png")
-    data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    labels.clear()
-    bar1_list.clear()
-    bar2_list.clear()
-    return html + f"""
-<html>
-<body>
-<head>
-	  <link rel="icon" href="https://image.freepik.com/free-icon/graph_318-10306.jpg">
-	    <title>Stats graph</title>
-  </head>
-	  <h1>Session graph for {name}</h1> 
-    <div class='center'>    
-      <img src='data:image/png;base64,{data}'/>
-    </div>
-    <button class="button" onclick="location.href = '/'">Home</button>
-</body>
-</html>"""
+def assign_to_dict(names) -> json:
+    dictionary = {}
+    for _, name in names:
+        stats = get_data(name, 'total_kills')
+        print(stats)
+        stats_list = [int(s) for s in re.findall(r'\b\d+\b', f'{stats}')]
+        dictionary[name] = stats_list
+    
+    datetimes = get_data('Kmasko', 'datetime')
+    datetimes_list = [item[0] for item in datetimes]
+    dictionary['Datetimes'] = datetimes_list
+
+    json_object = json.dumps(dictionary, indent = 2)
+
+    return json_object
+
+
+class Data(Resource):
+    def get(self):
+        return assign_to_dict(PLAYERS), 200
+    pass
+
+api.add_resource(Data, '/users')
+
+
+@app.route("/graph")
+def g():
+    return render_template('graph.html')
 
 
 def get_data(name, data) -> list:
@@ -112,24 +74,6 @@ def get_data(name, data) -> list:
     conn.commit()
     conn.close()
     return z
-
-
-@app.route("/customize_graph", methods=["POST", "GET"])
-def customize_graph():
-    if request.method == "POST":
-        user = request.form["names"]
-        stat = request.form["stats"]
-        user_2 = request.form['names_1']
-        stat_2 = request.form["stats_1"]
-        if user_2 == "none" or stat_2 == "none":
-            return create_graph(user, user_2, stat, stat_2, 1)
-        return create_graph(user, user_2, stat, stat_2, 2)
-    return html
-
-
-@app.route("/<nam>/<sta>")
-def s_f(nam, sta):
-    return create_graph(nam, nam, sta, "", 1)
 
 
 @app.route("/")
@@ -208,138 +152,3 @@ def run():
 def keep_alive():
     t = Thread(target=run)
     t.start()
-
-html = """
-<!DOCTYPE html>
-<body>
-<style>
-custom-select {
-  position: relative;
-  font-family: Arial;
-  backround-color: red
-}
-h3 {
-  text-align: center;
-}
-
-h1 {
-  text-align: center;
-}
-
-h3 {
-  color: rgb(58, 187, 213)
-}
-
-.button {
-  background-color: #008CBA;
-  border: none;
-  color: white;
-  padding: 5px 8px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 18px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 8px;
-}
-
-.center {
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-
-.button4 {
-  background-color: #E4E1E1;
-  color: black;
-  padding: 2px 5px;
-  font-size: 16px;
-  margin: 0px 0px
-}
-
-.button5 {
-  background-color: #ffffff;
-  color: black;
-  padding: 2px 5px;
-  font-size: 16px;
-  margin: 0px 0px
-}
-
-label {
-  font-size: 24px;
-}
-
-form {
-  text-align: center;
-}
-
-option {
-  /* background-color: #F0F6FF; */
-  font-family: Arial;
-  font-size: 1.2em;
-  padding: 1em 1.5em;  
-}
-
-select {
-  font-family: Arial;
-  font-size: 1.2em;
-  padding: 0.2em 0.2em; 
-}
-
-</style>
-<h1>Customize your graph</h1>
-<form action="#" method="post">
-  <label for="name">Your name: </label>
-  <select name="names" id="names">
-    <option value="" selected disabled hidden>Choose here</option>
-    <option value="Tajmoti">Tajmoti</option>
-    <option value="Teetou">Teetou</option>
-    <option value="Stano">Stano</option>
-    <option value="Kmasko">Kmasko</option>
-    <option value="Aligator">Aligator</option>
-    <option value="Dron">Dron</option>
-    <option value="Martin">Martin</option>
-    <option value="Kulivox">Kulivox</option>
-  </select>
-  <br><br>
-  <label for="stat">Stat: </label>
-  <select name="stats" id="stats">
-    <option value="" selected disabled hidden>Choose here</option>
-    <option value="total_kills">Kills</option>
-    <option value="total_deaths">Deaths</option>
-    <option value="total_planted_bombs">Planted bombs</option>
-    <option value="total_defused_bombs">Defused bombs</option>
-    <option value="total_kills_ak47">Kills ak47</option>
-  </select>
-  <br><br>
-  <label for="name">Second name: </label>
-  <select name="names_1" id="names_1">
-    <option value="" selected disabled hidden>Choose here</option>
-    <option value="none">None</option>
-    <option value="Tajmoti">Tajmoti</option>
-    <option value="Teetou">Teetou</option>
-    <option value="Stano">Stano</option>
-    <option value="Kmasko">Kmasko</option>
-    <option value="Aligator">Aligator</option>
-    <option value="Dron">Dron</option>
-    <option value="Martin">Martin</option>
-    <option value="Kulivox">Kulivox</option>
-  </select>
-  <br><br>
-  <label for="stat">Second stat: </label>
-  <select name="stats_1" id="stats_1">
-    <option value="" selected disabled hidden>Choose here</option>
-    <option value="none">None</option>
-    <option value="total_kills">Kills</option>
-    <option value="total_deaths">Deaths</option>
-    <option value="total_planted_bombs">Planted bombs</option>
-    <option value="total_defused_bombs">Defused bombs</option>
-    <option value="total_kills_ak47">Kills ak47</option>
-  </select>
-  <br><br>
-  <input class="button" type="submit" value="submit">
-</form>
-</body>
-</html>
-"""

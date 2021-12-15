@@ -18,6 +18,7 @@ from os.path import isfile, join
 from stats_compare import get_before_stat, get_last_stat
 from main import *
 import datetime
+from PIL import Image, ImageFont, ImageDraw 
 
 
 # all_messages = []
@@ -47,9 +48,9 @@ POSITIVE = ["yes", "Yes", "yea", "y", "sure", "ye", "Ye", "Y"]
 MINIMAL_NUMBER = 1
 MAXIMAL_NUMBER = 11
 MAXIMAL_LEN_GAME = 30
-SESSION_ROLE = 881509999623409724 #TEST-881509999623409724, ORIG-881505468667797554
-GAMING_ROLE = 881509999623409725 #TEST-881509999623409725, ORIG-825875949413072957
-GAMING_CATEGORY = 881522734776078366 #TEST-881522734776078366, ORIG-825872608091832332
+SESSION_ROLE = 881505468667797554 #TEST-881509999623409724, ORIG-881505468667797554
+GAMING_ROLE = 825875949413072957 #TEST-881509999623409725, ORIG-825875949413072957
+GAMING_CATEGORY = 825872608091832332 #TEST-881522734776078366, ORIG-825872608091832332
 SPACEX_ROLE = 853289230784004096
 NERD_ROLE = 853289397616640030
 
@@ -83,6 +84,17 @@ async def help(ctx, args=None):
         )
 
     await ctx.send(embed=help_embed)
+
+
+@bot.command()
+async def userinfo(ctx, *, member: discord.Member=None):
+  """Displays information on a user"""
+  if member == None:
+      member = ctx.message.author
+  embed = discord.Embed(color=member.color, timestamp=ctx.message.created_at)
+  embed.set_author(name=f"User Info - {member}")
+  embed.set_thumbnail(url=member.avatar_url)
+  await ctx.send(embed=embed)
 
 
 @bot.command(help="Creates session", aliases=['s', 'ss'])
@@ -207,9 +219,9 @@ async def leave(ctx):
     await ctx.voice_client.disconnect()
 
 
-@bot.command(help="Sends funny picture")
-async def russia(message):
-    await command_russia(message)
+# @bot.command(help="Sends funny picture")
+# async def russia(message):
+#     await command_russia(message)
 
 
 @bot.command(help="Sends random video of best csgo plays")
@@ -283,6 +295,76 @@ async def create_vc_channel(guild, game: str, number: int):
     session_dict[f'{game}_voice_channel'] = new_voice_channel
     if session_dict[f'{game}_soviet_session'] is True:
         await soviet_songs(new_voice_channel)
+
+
+@bot.command(help='!createpass `<name>` `<surrname>` `<birth_date>` `<birth_place>` `<gender> - "be what you want to be"`')
+async def createpass(ctx, name, surrname, birth_date, birth_place, gender):
+    LIMIT = 70
+    user = ctx.author
+
+    if len(name+surrname+birth_date+birth_place+gender) > LIMIT:
+        await ctx.send('Too many letters')
+        return
+
+    if os.path.isfile(f"russian_passes/{user.name}_pass.jpg"):
+        embed = discord.Embed(title='You already have your passport!', description='Type `!pass` to see your pass')
+        await ctx.send(embed=embed, delete_after=10)
+        return
+
+    if os.path.isfile(f"russian_passes/{user.name}_pass.jpg") == False:
+        img_data = requests.get(user.avatar_url).content
+        with open(f'avatars/{user.name}.jpg', 'wb') as handler:
+            handler.write(img_data)
+
+    if os.path.isfile(f"avatars/{user.name}_resized.jpg") == False:
+        resize_image(user)
+
+    format_pass(ctx, user, name, surrname, birth_date, birth_place, gender)
+
+
+@bot.command(aliases=['pass'])
+async def viewpass(ctx, *, member: discord.Member=None):
+    if member == None:
+        member = ctx.author
+
+    if os.path.isfile(f"russian_passes/{member.name}_pass.jpg"):
+        embed = discord.Embed(title='Pass:', description=f'User: `{member.name}`')
+        f = discord.File(f"russian_passes/{member.name}_pass.jpg")
+        await ctx.send(embed=embed, file=f)
+    else:
+        embed = discord.Embed(title='Pass not found', description=f'There is no pass for `{member}`')
+        await ctx.send(embed=embed, delete_after=10)
+        return
+
+
+async def resize_image(user):
+    avatar_image = Image.open(f'avatars/{user.name}.jpg')
+    if avatar_image.mode != 'RGB':
+        img = avatar_image.convert('RGB')
+    foo = img.resize((410,510),Image.ANTIALIAS)
+    foo.save(f"avatars/{user.name}_resized.jpg",quality=95)
+    os.remove(f"avatars/{user.name}.jpg")
+
+async def format_pass(ctx, user, name, surrname, birth_date, birth_place, gender):
+    date_today = datetime.datetime.today().strftime('%d.%m.')
+    pass_image = Image.open("russian_passes/pass.jpg")
+    avatar_image = Image.open(f'avatars/{user.name}_resized.jpg')
+    big_font = ImageFont.truetype("Roboto-Bold.ttf", 60)
+    small_font = ImageFont.truetype("Roboto-Bold.ttf", 50)
+
+    name_surrname = f"{name}\n{surrname}"
+    birth_date_place = f'{birth_date}                 {birth_place}\n{gender}\n{date_today}'
+
+    image_editable = ImageDraw.Draw(pass_image)
+    image_editable.text((530,1200), name_surrname, (0, 0, 0), font=big_font, spacing=50, aling="right")
+    image_editable.text((530,1480), birth_date_place, (0, 0, 0), font=small_font, spacing=25, aling="right")
+
+    Image.Image.paste(pass_image, avatar_image, (50, 1210))
+
+    pass_image.save(f"russian_passes/{user.name}_pass.jpg", quality=95)
+    f = discord.File(f"russian_passes/{user.name}_pass.jpg")
+    embed = discord.Embed(title='Your pass is ready', description='Congratulations, you can now use `!russia` command.')
+    await ctx.send(embed=embed, file=f)
 
 
 async def soviet_songs(channel):
@@ -779,51 +861,53 @@ async def send_report_message(message):
 
 
 # REDDIT
-# reddit = asyncpraw.Reddit(
-#                     client_id=os.getenv('client_id'),
-#                     client_secret=os.getenv('client_secret'),
-#                     username=os.getenv('username'),
-#                     password=os.getenv('password'),
-#                     user_agent="pythonpraw"
-#                     )
 
 
-# async def spacex_reddit():
-#     spacex_channel = bot.get_channel(818166852064247818)
-#     facts_channel = bot.get_channel(819169067747246120)
-#     spacex_subreddit = await reddit.subreddit("spacex")
-#     facts_subreddit = await reddit.subreddit("facts")
-#     async for spacex_submission in spacex_subreddit.stream.submissions(skip_existing=True):
-#         extension = spacex_submission.url[len(spacex_submission.url) - 3 :].lower()
-#         if "jpg" not in extension and "png" not in extension:
-#             await reddit_message_img(spacex_channel, spacex_submission.subreddit,
-#             spacex_submission.title, '<3', 'https://i.imgur.com/hzrRwO3.png', 1
-#             )
-#         else:
-#             await reddit_message_img(spacex_channel, spacex_submission.subreddit, spacex_submission.title, '',spacex_submission.url, 1
-#             )
+@bot.command()
+async def russia(ctx, subred="ANormalDayInRussia"):
+    if os.path.isfile(f"russian_passes/{ctx.author.name}_pass.jpg") == False:
+        embed = discord.Embed(title="You don't have passport!", description="Type `!createpass` to create your own passport.")
+        await ctx.send(embed=embed)
+        return
 
-#         async for facts_submission in facts_subreddit.stream.submissions(skip_existing=True):
-#             number = 3
-#             await reddit_message_img(facts_channel, facts_submission.subreddit,
-#             facts_submission.title, facts_submission.author, number
-#             )
+    msg = await ctx.send('Загрузка... ')
+
+    reddit = asyncpraw.Reddit(
+                    client_id=os.getenv('client_id'),
+                    client_secret=os.getenv('client_secret'),
+                    username=os.getenv('username'),
+                    password=os.getenv('password'),
+                    user_agent="pythonpraw"
+                    )
+
+    subreddit = await reddit.subreddit(subred)
+    all_subs = []
+    top = subreddit.top(limit=100) # bot will choose between the top 250 memes
+
+    async for submission in top:
+        all_subs.append(submission)
+
+    random_sub = random.choice(all_subs)
+
+    name = random_sub.title
+    url = random_sub.url
+    extension = random_sub.url[len(random_sub.url) - 3 :].lower()
+
+    embed = discord.Embed(title=f'__{name}__', colour=discord.Colour.random(), timestamp=ctx.message.created_at, url=url)
+
+    if "jpg" in extension or "png" in extension or "gif" in extension:
+        embed.set_image(url=url)
+    else:
+        embed.add_field(name="This post contains a video", value='Click on the title to view it')
+
+    embed.set_author(name=ctx.message.author, icon_url=ctx.author.avatar_url)
+    embed.set_footer(text=f'r/{subred}')
+    await msg.delete()
+    await ctx.send(embed=embed)
+    return
 
 
-# async def reddit_message_img(reddit_channel, subreddit_name, post_title, post_link, pos):
-#     if pos == 3:
-#       embed=discord.Embed(title=f"r/{subreddit_name}", description=f"{post_title}", color=0x0)
-#       await reddit_channel.send(embed=embed)
-#     if pos !=3:
-#       if pos == 1:
-#         embed=discord.Embed(title=f"r/{subreddit_name}", url=f"{post_link}", description=f"{post_title}", color=0x0)
-#         await reddit_channel.send(embed=embed)
-#       if pos == 2:
-#         embed=discord.Embed(title=f"r/{subreddit_name}", url=f"{post_link}", description=f"{post_title}", color=0x0)
-#         embed.set_image(url=f"{post_link}")
-#         await reddit_channel.send(embed=embed)
 # REDDIT
-
 async def read_image(message):
     await message.channel.send("Processing...")
     print(message.attachments[0].url)
@@ -845,22 +929,21 @@ async def on_message(message):
     if (message.author == bot.user):
         return
 
-    # await create_user_acc(message)
+    # if str(message.channel) == 'pytess' and message.attachments[0].url is not None:
+    #      await read_image(message)
 
-    if str(message.channel) == 'pytess' and message.attachments[0].url is not None:
-         await read_image(message)
+    # if str(message.channel) != 'bot-commands' and message.content[0] == '!':
+    #     if message.author.name != 'CerveneTlacitko':
+    #         await message.delete()
+    #         await send_report_message(message)
+    #         return
 
-    if str(message.channel) != 'bot-commands' and message.content[0] == '!':
-        if message.author.name != 'CerveneTlacitko':
-            await message.delete()
-            await send_report_message(message)
-            return
-
-    if str(message.channel) == 'bot-commands' and message.content[0] != '!':
-        if message.content not in POSITIVE:
-            await message.delete()
-            await send_report_message(message)
-            return
+    # if str(message.channel) == 'bot-commands' and message.content[0] != '!':
+    #     if message.author.name != 'CerveneTlacitko':
+    #         if message.content not in POSITIVE:
+    #             await message.delete()
+    #             await send_report_message(message)
+    #             return
     await bot.process_commands(message)
 
 
@@ -917,7 +1000,7 @@ async def on_command_error(ctx, error):
         embed = discord.Embed(title=random.choice(answers), description='Check spelling', color=0xff1414)
         await ctx.send(embed=embed)
     if isinstance(error, commands.MissingRequiredArgument):
-        embed = discord.Embed(title=random.choice(answers), description=f'Missing a required argument `<{error.param.name}>`.  Do !help', color=0xff1414)
+        embed = discord.Embed(title=random.choice(answers), description=f'Missing a required argument `<{error.param.name}>`.  Do `!help <commandname>`', color=0xff1414)
         await ctx.send(embed=embed)
     raise error
 

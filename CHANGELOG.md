@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.5.3] - 2020-12-15
+### Modified
+- Recreated chart
+    - Better UI
+    - option to mix stats with more than 2 players
+- Added russian pass
+- Fixed !russia error with loading videos
+
+
 # [2.4.2] - 2020-8-31
 ### Modified
 - Reworked `!startsession` command

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chart</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+  <div>
+    <canvas id="myChart" width="200" height="85"></canvas>
+  </div>
+<div id="content"></div> 
+<script>
+const chat = document.getElementById('myChart').getContext('2d');
+
+const DATA_COUNT = 7;
+const NUMBER_CFG = {count: DATA_COUNT, min: 0, max: 200};
+
+let tlacitko, timo, datetimes;
+
+$.ajax({
+  method: "GET",
+  url: "users",
+  async: false,
+  success: data => {
+    const obj = JSON.parse(data),
+    { Kmasko, Tajmoti, Stano, Aligator, Teetou, Datetimes } = obj;
+    samko = Kmasko;
+    timo = Tajmoti;
+    stano = Stano;
+    denis = Aligator;
+    risko = Teetou;
+    datetimes = Datetimes;
+  }
+});
+
+const labels = datetimes;
+
+const data = {
+    labels: labels,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+    }
+};
+
+
+const actions = [
+  {
+    name: 'Samko',
+    handler(chart) {
+      const data = chart.data;
+      const dsColor = ['rgb(235, 106, 0)'];
+      const newDataset = {
+        label: 'Samko',
+        backgroundColor: ['rgb(235, 106, 0)'],
+        borderColor: dsColor,
+        data: samko
+      };
+      chart.data.datasets.push(newDataset);
+      chart.update();
+    }
+  },
+  {
+    name: 'Risko',
+    handler(chart) {
+      const data = chart.data;
+      const dsColor = ['rgb(0,191,255)'];
+      const newDataset = {
+        label: 'Risko',
+        backgroundColor: ['rgb(0,191,255)'],
+        borderColor: dsColor,
+        data: risko
+      };
+      chart.data.datasets.push(newDataset);
+      chart.update();
+    }
+  },
+  {
+    name: 'Timo',
+    handler(chart) {
+      const data = chart.data;
+      const dsColor = ['rgb(255,255,0)'];
+      const newDataset = {
+        label: 'Timo',
+        backgroundColor: ['rgb(255,255,0)'],
+        borderColor: dsColor,
+        data: timo
+      };
+      chart.data.datasets.push(newDataset);
+      chart.update();
+    }
+  },
+  {
+    name: 'Denis',
+    handler(chart) {
+      const data = chart.data;
+      const dsColor = ['rgb(148,0,211)'];
+      const newDataset = {
+        label: 'Denis',
+        backgroundColor: ['rgb(148,0,211)'],
+        borderColor: dsColor,
+        data: denis
+      };
+      chart.data.datasets.push(newDataset);
+      chart.update();
+    }
+  },
+  {
+    name: 'Stano',
+    handler(chart) {
+      const data = chart.data;
+      const dsColor = ['rgb(124,252,0)'];
+      const newDataset = {
+        label: 'Stano',
+        backgroundColor: ['rgb(124,252,0)'],
+        borderColor: dsColor,
+        data: stano
+      };
+      chart.data.datasets.push(newDataset);
+      chart.update();
+    }
+  },
+
+  {
+    name: 'Remove Dataset',
+    handler(chart) {
+      chart.data.datasets.pop();
+      chart.update();
+    }
+  },
+];
+
+const config = {
+  type: 'line',
+  data: data,
+  options: {
+    responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    stacked: false,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Session stats'
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        type: 'linear',
+        display: true,
+        position: 'left',
+      },
+      y1: {
+        type: 'linear',
+        display: false,
+        position: 'right',
+
+        // grid line settings
+        grid: {
+          drawOnChartArea: false, // only want the grid lines for one axis to show up
+        },
+      },
+    }
+  },
+};
+
+
+const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+);
+
+const content = document.getElementById('content');
+
+actions.forEach((a) => {
+  const el = document.createElement('button');
+  el.classList.add('action-button');
+  el.textContent = a.name;
+  el.addEventListener('click', function() {
+    a.handler(myChart);  
+  });
+  content.appendChild(el);
+});
+
+</script>
+
+<style>
+.action-button {
+  background-color: #bed7f1; 
+  border: none;
+  color: white;
+  padding: 10px 25px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;f
+  font-family: inherit;
+  font-size:.95rem;
+  font-weight: 700;
+  margin: 4px 2px;
+  transition-duration: 0.2s;
+  cursor: pointer;
+}
+
+
+.action-button {
+  border-radius: 8px;
+  background-color: white; 
+  color: #2B86EA; 
+  border: 1px solid white;
+}
+
+.action-button:hover {
+  background-color: #e0ecf8;
+  color: #3080d3;
+  border: 1px solid #bed7f1;
+}
+
+.action-button:active {
+  background-color: #c0d9f1;
+}
+</style>
+
+</body>
+</html>
