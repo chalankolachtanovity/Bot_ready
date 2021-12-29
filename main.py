@@ -1,21 +1,14 @@
 import sqlite3
-import base64
-from io import BytesIO
-import numpy as np
 import re
-from matplotlib.figure import Figure
 import string
 from steam_stats import download_profile
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 from threading import Thread
 from game_stats_compare import generate_kd_page, generate_hs_page
 from site_generator import get_player_stats_generate_site
 import os
 import main_lachtan
-from flask_restful import Resource, Api, reqparse
-import pandas as pd
-import ast
-
+from flask_restful import Resource, Api
 
 
 app = Flask(__name__)
@@ -75,16 +68,9 @@ def get_data(name, data) -> list:
     conn.close()
     return z
 
-
 @app.route("/")
 def home():
-    lst = main_lachtan.html_ready_list
-    lachtan_dict = main_lachtan.html_dict
-    if lachtan_dict == {}:
-        return render_template("scraped_sc.html", kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'],
-        dron=DRON_DICT['personaname'], martin=MARTIN_DICT['personaname'], kulivox=KULIVOX_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
-        )
-    return render_template("scraped_sc.html", players_ready=(', '.join(lst)), curr_session=lachtan_dict["session"], max_players=lachtan_dict["max_players"], kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'], dron=DRON_DICT['personaname'], martin=MARTIN_DICT['personaname'], kulivox=KULIVOX_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
+    return render_template("scraped_sc.html", kmasko=KMASKO_DICT['personaname'], stano=STANO_DICT['personaname'], aligator=ALIGATOR_DICT['personaname'], teetou=TEETOU_DICT['personaname'], tajmoti=TAJMOTI_DICT['personaname'], dron=DRON_DICT['personaname'], martin=MARTIN_DICT['personaname'], kulivox=KULIVOX_DICT['personaname'], bonsai_avatar=ALIGATOR_DICT["avatarfull"], bonsai_realname=ALIGATOR_DICT['realname']
     )
 
 

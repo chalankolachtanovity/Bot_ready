@@ -1,3 +1,26 @@
 {
-  "files": {}
+  "files": {
+    "cogs/session.py": [
+      {
+        "id": "04af2b0e-fa02-4f47-a432-c19fbeb745c1",
+        "line": 9,
+        "version": 678,
+        "index": 135
+      }
+    ],
+    "main_lachtan_copy.py": [
+      {
+        "id": "151e1fcc-1017-40b5-9db2-42237161a227",
+        "line": 58,
+        "version": 84,
+        "index": 2288
+      },
+      {
+        "id": "21887df9-1c4a-4614-a5bc-1d2b5771050d",
+        "line": 60,
+        "version": 84,
+        "index": 2491
+      }
+    ]
+  }
 }
