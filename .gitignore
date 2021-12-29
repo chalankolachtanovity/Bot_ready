@@ -1,6 +1,11 @@
 __pycache__/
+
 cogs/__pycache__/
+
 avatars
+
 russian_passes
-file::memory:?cache=shared/
-node_modules/chart.js
+
+file::memory:?cache=shared
+
+node_modules
